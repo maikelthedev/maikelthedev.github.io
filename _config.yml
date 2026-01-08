@@ -10,7 +10,6 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-reading-time
-  - jekyll-archives
 
 # Syntax highlighting is built-in with Rouge (no plugin needed)
 highlighter: rouge
@@ -20,18 +19,6 @@ kramdown:
   auto_ids: true
   heading_offset: 0
   syntax_highlighter: rouge
-
-# Jekyll Archives configuration
-jekyll-archives:
-  enabled:
-    - categories
-    - tags
-  layouts:
-    category: archive
-    tag: tag
-  permalinks:
-    category: /categories/:name/
-    tag: /tag/:name/
 
 # Feed configuration
 feed:
