@@ -1,8 +1,6 @@
 ---
 layout: default
 title: "Home"
-pagination:
-  enabled: true
 ---
 
 {% assign all_featured = site.posts | where: "featured", true | sort: "date" | reverse %}
