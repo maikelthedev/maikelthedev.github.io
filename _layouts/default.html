@@ -4,7 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
-    <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+    <link rel="preload" href="{{ "/assets/css/main.css" | relative_url }}" as="style">
+    <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}" media="all">
     {% seo %}
     {% feed_meta %}
   </head>
@@ -40,7 +41,8 @@
     
     <script>
       // Add anchor links to all headers
-      document.addEventListener('DOMContentLoaded', function() {
+      // Use requestAnimationFrame to ensure layout is stable after CSS loads
+      function initAnchors() {
         const headers = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
         
         headers.forEach(function(header) {
@@ -60,7 +62,20 @@
           
           header.insertBefore(anchor, header.firstChild);
         });
-      });
+      }
+      
+      // Wait for DOM and ensure layout is stable
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(initAnchors);
+          });
+        });
+      } else {
+        requestAnimationFrame(function() {
+          requestAnimationFrame(initAnchors);
+        });
+      }
     </script>
   </body>
 </html>
