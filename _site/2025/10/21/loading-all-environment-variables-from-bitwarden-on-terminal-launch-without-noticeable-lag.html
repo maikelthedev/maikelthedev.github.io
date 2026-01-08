@@ -67,7 +67,7 @@
       
       
       
-      <span class="post-reading-time">7 min read</span>
+      <span class="post-reading-time">8 min read</span>
       
       
     </div>
@@ -90,16 +90,41 @@
 
 <p>It has a small issue, which is that it doesn’t accept <a href="https://github.com/doy/rbw/issues/292#issuecomment-3425564942">Webauth/FIDO2 as 2FA right now</a> but you can bypass this issue enabling any of the other accepted 2FA ways. In fact I enabled TOTP and it worked beautifully, I was asked for the temporal number combo only once the first time. You can use bitwarden itself as TOTP generator for this since you already have other login mechanisms for it.</p>
 
-<p>That done, one problem was solved, login with <code class="language-plaintext highlighter-rouge">rbw</code> is very easy after installing it, if you use Bitwarden’s official vault, same as I do, do not forget the <code class="language-plaintext highlighter-rouge">register</code> command as explained in the <a href="https://github.com/doy/rbw">rbw repo</a> also if you use Nixos add <code class="language-plaintext highlighter-rouge">pinsentry-tty</code> to your packages, not <code class="language-plaintext highlighter-rouge">pinsentry</code> not any GUI version, you want the one for the terminal . Then do:
-<code># To configure it rbw config set email your@ema.il # Lock timeout in seconds, I prefer 16 hours, covers the time I'm awake rbw config set lock_timeout $(math "60*60*16") # To log in rbw login `&lt;/pre&gt;&lt;p&gt;And that's it. You don't need to do anything else. Any changes in config will ask you to login again the next time you try to get anything out of Bitwarden. With this we've solved the second problem, keeping environment variables anywhere on our system to stay connected.</code></p>
+<p>That done, one problem was solved, login with <code class="language-plaintext highlighter-rouge">rbw</code> is very easy after installing it, if you use Bitwarden’s official vault, same as I do, do not forget the <code class="language-plaintext highlighter-rouge">register</code> command as explained in the <a href="https://github.com/doy/rbw">rbw repo</a> also if you use Nixos add <code class="language-plaintext highlighter-rouge">pinsentry-tty</code> to your packages, not <code class="language-plaintext highlighter-rouge">pinsentry</code> not any GUI version, you want the one for the terminal . Then do:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># To configure it</span>
+rbw config <span class="nb">set </span>email your@ema.il
+<span class="c"># Lock timeout in seconds, I prefer 16 hours, covers the time I'm awake</span>
+rbw config <span class="nb">set </span>lock_timeout <span class="si">$(</span>math <span class="s2">"60*60*16"</span><span class="si">)</span>
+<span class="c"># To log in</span>
+rbw login
+</code></pre></div></div>
+
+<p>And that’s it. You don’t need to do anything else. Any changes in config will ask you to login again the next time you try to get anything out of Bitwarden. With this we’ve solved the second problem, keeping environment variables anywhere on our system to stay connected.</p>
 
 <h1 id="next-issue-rbw-speed-has-limits">Next issue: RBW speed has limits</h1>
 
-<p>So imagine I want to set up a function called <code class="language-plaintext highlighter-rouge">load_bitwarden_vars</code> that I call at the very end of <code class="language-plaintext highlighter-rouge">config.fish</code> so something like this
-<code>function load_bitwarden_vars set -gx GITHUB_CLIENT_ID $(rbw get github -f client_id) set -gx GITHUB_CLIENT_SECRET $(rbw get github -f client_secret) set -gx ZT_TOKEN $(rbw get zerotier -f token) set -gx ZT_NWID $(rbw get zerotier -f network_id) end`&lt;/pre&gt;&lt;p&gt;The `rbw` tool has the advantage over `bw` that it is a lot faster retrieving data, milliseconds, not seconds. But the more calls you do to it during start up of fish shell the slower it gets for you to see the shell prompt whenever you open a window. This is unwieldly. I don't have 4 vars, I have plenty more of them. After filling up my `load_bitwarden_vars.fish` file containing the function this took a very **unacceptable **long time.</code></p>
+<p>So imagine I want to set up a function called <code class="language-plaintext highlighter-rouge">load_bitwarden_vars</code> that I call at the very end of <code class="language-plaintext highlighter-rouge">config.fish</code> so something like this</p>
 
-<p>I came up with the idea of putting each var directly as an alias or abbreviation of the tool it uses them. So, e.g: vault became either
-<code># option 1 abb --add vault "TOKEN=$(rbw get...) vault" # option 2 alias vault "TOKEN=$(rbw get...) /run/current-system/sw/bin/vault"`&lt;/pre&gt;&lt;p&gt;Yet alias has the issue of needing the whole vault path (Nixos) otherwise it becomes an infinite loop and Fish doesn't allow it. And both have the major issue of computing the values when Fish launches so very slow.</code></p>
+<pre><code class="language-fish">function load_bitwarden_vars
+  set -gx GITHUB_CLIENT_ID $(rbw get github -f client_id)
+  set -gx GITHUB_CLIENT_SECRET $(rbw get github -f client_secret)
+  set -gx ZT_TOKEN $(rbw get zerotier -f token)
+  set -gx ZT_NWID $(rbw get zerotier -f network_id)
+end
+</code></pre>
+
+<p>The <code class="language-plaintext highlighter-rouge">rbw</code> tool has the advantage over <code class="language-plaintext highlighter-rouge">bw</code> that it is a lot faster retrieving data, milliseconds, not seconds. But the more calls you do to it during start up of fish shell the slower it gets for you to see the shell prompt whenever you open a window. This is unwieldly. I don’t have 4 vars, I have plenty more of them. After filling up my <code class="language-plaintext highlighter-rouge">load_bitwarden_vars.fish</code> file containing the function this took a very **unacceptable **long time.</p>
+
+<p>I came up with the idea of putting each var directly as an alias or abbreviation of the tool it uses them. So, e.g: vault became either</p>
+
+<pre><code class="language-fish"># option 1
+abb --add vault "TOKEN=$(rbw get...) vault"
+# option 2
+alias vault "TOKEN=$(rbw get...) /run/current-system/sw/bin/vault"
+</code></pre>
+
+<p>Yet alias has the issue of needing the whole vault path (Nixos) otherwise it becomes an infinite loop and Fish doesn’t allow it. And both have the major issue of computing the values when Fish launches so very slow.</p>
 
 <h1 id="the-solution">The solution</h1>
 
@@ -109,8 +134,18 @@
 <img src="/assets/images/2025-10-image-2.png" alt="Image" />
 The elegance of this approach is that I get to name all vars directly on Bitwarden as custom-fields, no sign of them in my fish config files.</p>
 
-<p>So now to get Fish to load them type <code class="language-plaintext highlighter-rouge">funced load_bitwarden_vars</code> and add this to it
-<code>function load_bitwarden_vars set TOKENS $(rbw get tokens --raw) for pair in (printf "%s" "$TOKENS" | jq -r '.fields[] | "\(.name)=\(.value)"') set -l parts (string split -m1 = $pair) set -gx $parts[1] $parts[2] end end `&lt;/pre&gt;&lt;p&gt;Then `funcsave load_bitwarden_vars` to store it in `$HOME/.config/fish/functions/load_bitwarden_vars.fish` and then add at the end of `$HOME/.config/fish/config.fish` the function name `load_bitwarden_vars` to run it after everything else of your config has loaded. In my case being at the end was quite important as I have modifiers for `PATH` in this file.</code></p>
+<p>So now to get Fish to load them type <code class="language-plaintext highlighter-rouge">funced load_bitwarden_vars</code> and add this to it</p>
+
+<pre><code class="language-fish">function load_bitwarden_vars
+  set TOKENS $(rbw get tokens --raw)
+  for pair in (printf "%s" "$TOKENS" | jq -r '.fields[] | "\(.name)=\(.value)"')
+    set -l parts (string split -m1 = $pair)
+    set -gx $parts[1] $parts[2]
+  end
+end
+</code></pre>
+
+<p>Then <code class="language-plaintext highlighter-rouge">funcsave load_bitwarden_vars</code> to store it in <code class="language-plaintext highlighter-rouge">$HOME/.config/fish/functions/load_bitwarden_vars.fish</code> and then add at the end of <code class="language-plaintext highlighter-rouge">$HOME/.config/fish/config.fish</code> the function name <code class="language-plaintext highlighter-rouge">load_bitwarden_vars</code> to run it after everything else of your config has loaded. In my case being at the end was quite important as I have modifiers for <code class="language-plaintext highlighter-rouge">PATH</code> in this file.</p>
 
 <p>Now to test it fully lock your vault with <code class="language-plaintext highlighter-rouge">rbw lock</code> and close your terminal window. Open a newone and you should see 👇
 <img src="/assets/images/2025-10-image-3.png" alt="Image" />

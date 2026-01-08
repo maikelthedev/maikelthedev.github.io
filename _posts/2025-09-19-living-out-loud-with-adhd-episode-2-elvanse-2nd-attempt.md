@@ -6,7 +6,6 @@ excerpt: "My experience with ADHD and what has been working so far ever since st
 image: "/assets/images/unsplash-1675524375084.jpg"
 tags:
   - ADHD
-featured: true
 ---
 
 # Some necesary background

@@ -28,15 +28,43 @@ The program `rbw` is a command-line tool that does the same job as Bitwarden-CLI
 It has a small issue, which is that it doesn't accept [Webauth/FIDO2 as 2FA right now](https://github.com/doy/rbw/issues/292#issuecomment-3425564942) but you can bypass this issue enabling any of the other accepted 2FA ways. In fact I enabled TOTP and it worked beautifully, I was asked for the temporal number combo only once the first time. You can use bitwarden itself as TOTP generator for this since you already have other login mechanisms for it.
 
 That done, one problem was solved, login with `rbw` is very easy after installing it, if you use Bitwarden's official vault, same as I do, do not forget the `register` command as explained in the [rbw repo](https://github.com/doy/rbw) also if you use Nixos add `pinsentry-tty` to your packages, not `pinsentry` not any GUI version, you want the one for the terminal . Then do:
-<code ># To configure it rbw config set email your@ema.il # Lock timeout in seconds, I prefer 16 hours, covers the time I'm awake rbw config set lock_timeout $(math "60*60*16") # To log in rbw login `</pre><p>And that's it. You don't need to do anything else. Any changes in config will ask you to login again the next time you try to get anything out of Bitwarden. With this we've solved the second problem, keeping environment variables anywhere on our system to stay connected.
+
+```bash
+# To configure it
+rbw config set email your@ema.il
+# Lock timeout in seconds, I prefer 16 hours, covers the time I'm awake
+rbw config set lock_timeout $(math "60*60*16")
+# To log in
+rbw login
+```
+
+And that's it. You don't need to do anything else. Any changes in config will ask you to login again the next time you try to get anything out of Bitwarden. With this we've solved the second problem, keeping environment variables anywhere on our system to stay connected.
 
 # Next issue: RBW speed has limits
 
 So imagine I want to set up a function called `load_bitwarden_vars` that I call at the very end of `config.fish` so something like this
-<code >function load_bitwarden_vars set -gx GITHUB_CLIENT_ID $(rbw get github -f client_id) set -gx GITHUB_CLIENT_SECRET $(rbw get github -f client_secret) set -gx ZT_TOKEN $(rbw get zerotier -f token) set -gx ZT_NWID $(rbw get zerotier -f network_id) end`</pre><p>The `rbw` tool has the advantage over `bw` that it is a lot faster retrieving data, milliseconds, not seconds. But the more calls you do to it during start up of fish shell the slower it gets for you to see the shell prompt whenever you open a window. This is unwieldly. I don't have 4 vars, I have plenty more of them. After filling up my `load_bitwarden_vars.fish` file containing the function this took a very **unacceptable **long time.
+
+```fish
+function load_bitwarden_vars
+  set -gx GITHUB_CLIENT_ID $(rbw get github -f client_id)
+  set -gx GITHUB_CLIENT_SECRET $(rbw get github -f client_secret)
+  set -gx ZT_TOKEN $(rbw get zerotier -f token)
+  set -gx ZT_NWID $(rbw get zerotier -f network_id)
+end
+```
+
+The `rbw` tool has the advantage over `bw` that it is a lot faster retrieving data, milliseconds, not seconds. But the more calls you do to it during start up of fish shell the slower it gets for you to see the shell prompt whenever you open a window. This is unwieldly. I don't have 4 vars, I have plenty more of them. After filling up my `load_bitwarden_vars.fish` file containing the function this took a very **unacceptable **long time.
 
 I came up with the idea of putting each var directly as an alias or abbreviation of the tool it uses them. So, e.g: vault became either
-<code ># option 1 abb --add vault "TOKEN=$(rbw get...) vault" # option 2 alias vault "TOKEN=$(rbw get...) /run/current-system/sw/bin/vault"`</pre><p>Yet alias has the issue of needing the whole vault path (Nixos) otherwise it becomes an infinite loop and Fish doesn't allow it. And both have the major issue of computing the values when Fish launches so very slow.
+
+```fish
+# option 1
+abb --add vault "TOKEN=$(rbw get...) vault"
+# option 2
+alias vault "TOKEN=$(rbw get...) /run/current-system/sw/bin/vault"
+```
+
+Yet alias has the issue of needing the whole vault path (Nixos) otherwise it becomes an infinite loop and Fish doesn't allow it. And both have the major issue of computing the values when Fish launches so very slow.
 
 # The solution
 
@@ -47,7 +75,18 @@ For each one of the variables I want to retrieve I created a hidden text field, 
 The elegance of this approach is that I get to name all vars directly on Bitwarden as custom-fields, no sign of them in my fish config files.
 
 So now to get Fish to load them type `funced load_bitwarden_vars` and add this to it
-<code >function load_bitwarden_vars set TOKENS $(rbw get tokens --raw) for pair in (printf "%s" "$TOKENS" | jq -r '.fields[] | "\(.name)=\(.value)"') set -l parts (string split -m1 = $pair) set -gx $parts[1] $parts[2] end end `</pre><p>Then `funcsave load_bitwarden_vars` to store it in `$HOME/.config/fish/functions/load_bitwarden_vars.fish` and then add at the end of `$HOME/.config/fish/config.fish` the function name `load_bitwarden_vars` to run it after everything else of your config has loaded. In my case being at the end was quite important as I have modifiers for `PATH` in this file.
+
+```fish
+function load_bitwarden_vars
+  set TOKENS $(rbw get tokens --raw)
+  for pair in (printf "%s" "$TOKENS" | jq -r '.fields[] | "\(.name)=\(.value)"')
+    set -l parts (string split -m1 = $pair)
+    set -gx $parts[1] $parts[2]
+  end
+end
+```
+
+Then `funcsave load_bitwarden_vars` to store it in `$HOME/.config/fish/functions/load_bitwarden_vars.fish` and then add at the end of `$HOME/.config/fish/config.fish` the function name `load_bitwarden_vars` to run it after everything else of your config has loaded. In my case being at the end was quite important as I have modifiers for `PATH` in this file.
 
 Now to test it fully lock your vault with `rbw lock` and close your terminal window. Open a newone and you should see 👇
 ![Image](/assets/images/2025-10-image-3.png)

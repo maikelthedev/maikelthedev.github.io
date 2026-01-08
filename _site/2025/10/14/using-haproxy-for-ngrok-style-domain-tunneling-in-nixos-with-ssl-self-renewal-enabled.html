@@ -67,7 +67,7 @@
       
       
       
-      <span class="post-reading-time">5 min read</span>
+      <span class="post-reading-time">10 min read</span>
       
       
     </div>
@@ -77,55 +77,259 @@
     <p>I love accessing computers from elsewhere yet hate Ngrok, Tailscale and Zrok with passion so I made a post not long ago about <a href="/pagekite-with-custom-domain-in-nixos-tunneling-without-ngrok-for-free/">how to self-host Pagekite</a> to be able to use your own domain names for this. The problem is how ugly it made my configuration.nix files and how I didn’t manage to write an auto-renewal script. Today I’ve figured how using ACME. HAProxy seems to have the same issue of wanting a single file for all keys but I managed to bypass that one here.</p>
 
 <h1 id="configurationnix">Configuration.nix</h1>
-<p><code># Assuming configuration.nix { # Rest of your file imports = [ # Rest of your imports ./haproxy-acme.nix ] } `&lt;/pre&gt; # Server: haproxy-acme.nix &lt;p&gt;Change `serverNames` for whatever list of servers you want to add, don't forget to manually edit the `services.haproxy.config` configuration too for your added servernames without SSL, in my case is my zerotier one, accessible on my zerotier network.</code></p>
 
-<p>The <code class="language-plaintext highlighter-rouge">acme_email</code>variable should point to your var.
-<code>{ config, pkgs, ... }: let acme_email = "acme@maikel.dev"; # Map domains to their backend host:port serverBackends = { "something_one.maikeladas.es" = "127.0.0.1:4000"; # Phoenix dev server. "something_else.maikeladas.es" = "thinkpad.zerotier:8080"; #Zerotier URL }; serverNames = builtins.attrNames serverBackends; # ACLs aclLines = builtins.concatStringsSep "\n" (map (d: let aclName = "host_${builtins.replaceStrings [ "." ] [ "_" ] d}"; in " acl ${aclName} hdr(host) -i ${d}" ) serverNames); redirectLines = builtins.concatStringsSep "\n" (map (d: " http-request redirect scheme https code 301 if host_${builtins.replaceStrings [ "." ] [ "_" ] d}") serverNames); # use_backend lines backendLines = builtins.concatStringsSep "\n" (map (d: let aclName = "host_${builtins.replaceStrings [ "." ] [ "_" ] d}"; backendName = builtins.replaceStrings [ "." ] [ "_" ] d; in " use_backend ${backendName}_app if ${aclName}" ) serverNames); # crt files crtFiles = builtins.concatStringsSep " " (map (d: "crt /var/lib/haproxy/certs/${d}.pem" ) serverNames); # backend definitions backendDefs = builtins.concatStringsSep "\n" (map (d: let backendName = builtins.replaceStrings [ "." ] [ "_" ] d; backendAddr = serverBackends.${d}; indent = " "; # 1 tab = 4 spaces in '' ${indent}backend ${backendName}_app ${indent} mode http ${indent} server ${backendName}_1 ${backendAddr} check inter 2s fall 3 rise 2 ${indent} errorfiles customerrors '' ) serverNames); in { # SSL certificates for HAProxy security.acme = { acceptTerms = true; defaults.email = acme_email; certs = builtins.listToAttrs (map (domain: { name = domain; value = { webroot = "/var/lib/acme/acme-challenge"; group = "haproxy"; postRun = '' mkdir -p /var/lib/haproxy/certs cat /var/lib/acme/${domain}/fullchain.pem \ /var/lib/acme/${domain}/key.pem \ &gt; /var/lib/haproxy/certs/${domain}.pem chown root:haproxy /var/lib/haproxy/certs/${domain}.pem chmod 0640 /var/lib/haproxy/certs/${domain}.pem ''; }; }) serverNames); }; # HAProxy service services.haproxy = { enable = true; config = '' global log stdout format raw local0 maxconn 2000 defaults log global mode http option httplog option dontlognull option forwardfor except 127.0.0.1 timeout connect 5s timeout client 30s timeout server 30s retries 3 frontend http_in bind *:80 acl acme_challenge path_beg /.well-known/acme-challenge/ use_backend acme_backend if acme_challenge acl host_zt hdr(host) -i stephen.zerotier ${aclLines} use_backend something_one_maikeladas_es_app if host_zt ${redirectLines} default_backend not_found frontend https_in bind *:443 ssl ${crtFiles} mode http acl acme_challenge path_beg /.well-known/acme-challenge/ ${aclLines} use_backend acme_backend if acme_challenge ${backendLines} default_backend not_found backend acme_backend mode http server local_acme 127.0.0.1:8081 ${backendDefs} http-errors customerrors errorfile 503 /etc/haproxy/errorfiles/503.http backend not_found mode http errorfiles customerrors ''; user = "haproxy"; group = "haproxy"; }; environment.etc."haproxy/errorfiles/503.http".text = '' HTTP/1.1 503 Service Unavailable Cache-Control: no-cache Connection: close Content-Type: text/html ${builtins.readFile ./haproxy-error-503.html} ''; # Local HTTP server to serve ACME challenges systemd.services.acme-challenge-server = { description = "Serve Let's Encrypt challenges for HAProxy"; wantedBy = [ "multi-user.target" ]; serviceConfig = { ExecStart = "${pkgs.python3}/bin/python3 -m http.server 8081 --directory /var/lib/acme/acme-challenge"; Restart = "always"; }; }; } `&lt;/pre&gt; # Your laptop or other PC configuration to be accessible &lt;p&gt;Assuming you use Zerotier (is free) and have it in the same network as the server (I do) and you know the IP or domain name if you have it in /etc/hosts (I do but I prefer to use IPs). Notice how I've limited the listening interfaces to that one of Zerotier only.</code></p>
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Assuming configuration.nix</span>
+<span class="p">{</span>
+  <span class="c"># Rest of your file</span>
+  <span class="nv">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c"># Rest of your imports</span>
+    <span class="sx">./haproxy-acme.nix</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
-<p>Of course import this file in your configuration for that machine. I call it <code class="language-plaintext highlighter-rouge">haproxy-redirect.nix</code> to make it clear what the nix contains.
-<code>{ config, pkgs, ... }: { # HAProxy service services.haproxy = { enable = true; config = '' global log stdout format raw local0 maxconn 2000 defaults log global mode http option httplog option dontlognull option forwardfor except 127.0.0.1 timeout connect 5s timeout client 30s timeout server 30s retries 3 frontend local_http bind thinkpad.zerotier:8080 default_backend phoenix_app backend phoenix_app server phoenix_1 127.0.0.1:4000 check inter 2s fall 3 rise 2 errorfile 503 /etc/haproxy/errorfiles/503.http ''; user = "haproxy"; group = "haproxy"; }; environment.etc."haproxy/errorfiles/503.http".text = '' HTTP/1.1 503 Service Unavailable Cache-Control: no-cache Connection: close Content-Type: text/html ${builtins.readFile ./haproxy-error-503.html} ''; } `&lt;/pre&gt; ## The default 503 error file ![Image](/assets/images/2025-10-image-1.png)&lt;p&gt;All errors I got when I turned off any of them servers were of type 503 so that's the error I customised. The files is `haproxy-error-503.html` and should be in the same folder as the nix configuration. The content is this</code></p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8" /&gt;
-    &lt;title&gt;Service Unavailable&lt;/title&gt;
-    &lt;style&gt;
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: #fafafa;
-        color: #333;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-      }
-      main {
-        text-align: center;
-        padding: 2rem;
-        background: white;
-        border-radius: 1rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      }
-      h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        color: #c0392b;
-      }
-      p {
-        font-size: 1rem;
-        color: #666;
-      }
-    &lt;/style&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;main&gt;
-      &lt;h1&gt;503 – Service Unavailable&lt;/h1&gt;
-      &lt;p&gt;Our server is taking a quick break. Please try again in a moment.&lt;/p&gt;
-    &lt;/main&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+<h1 id="server-haproxy-acmenix">Server: haproxy-acme.nix</h1>
+
+<p>Change <code class="language-plaintext highlighter-rouge">serverNames</code> for whatever list of servers you want to add, don’t forget to manually edit the <code class="language-plaintext highlighter-rouge">services.haproxy.config</code> configuration too for your added servernames without SSL, in my case is my zerotier one, accessible on my zerotier network.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">acme_email</code>variable should point to your var.</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nv">config</span><span class="p">,</span> <span class="nv">pkgs</span><span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+<span class="kd">let</span>
+  <span class="nv">acme_email</span> <span class="o">=</span> <span class="s2">"acme@maikel.dev"</span><span class="p">;</span>
+  <span class="c"># Map domains to their backend host:port</span>
+  <span class="nv">serverBackends</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"something_one.maikeladas.es"</span> <span class="o">=</span> <span class="s2">"127.0.0.1:4000"</span><span class="p">;</span> <span class="c"># Phoenix dev server.</span>
+    <span class="s2">"something_else.maikeladas.es"</span> <span class="o">=</span> <span class="s2">"thinkpad.zerotier:8080"</span><span class="p">;</span> <span class="c">#Zerotier URL</span>
+  <span class="p">};</span>
+  <span class="nv">serverNames</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">attrNames</span> <span class="nv">serverBackends</span><span class="p">;</span>
+  <span class="c"># ACLs</span>
+  <span class="nv">aclLines</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">concatStringsSep</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="p">(</span><span class="kr">map</span> <span class="p">(</span><span class="nv">d</span><span class="p">:</span>
+    <span class="kd">let</span> <span class="nv">aclName</span> <span class="o">=</span> <span class="s2">"host_</span><span class="si">${</span><span class="kr">builtins</span><span class="o">.</span><span class="nv">replaceStrings</span> <span class="p">[</span> <span class="s2">"."</span> <span class="p">]</span> <span class="p">[</span> <span class="s2">"_"</span> <span class="p">]</span> <span class="nv">d</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+    <span class="kn">in</span> <span class="s2">"  acl </span><span class="si">${</span><span class="nv">aclName</span><span class="si">}</span><span class="s2"> hdr(host) -i </span><span class="si">${</span><span class="nv">d</span><span class="si">}</span><span class="s2">"</span>
+  <span class="p">)</span> <span class="nv">serverNames</span><span class="p">);</span>
+  <span class="nv">redirectLines</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">concatStringsSep</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="p">(</span><span class="kr">map</span> <span class="p">(</span><span class="nv">d</span><span class="p">:</span>
+    <span class="s2">"  http-request redirect scheme https code 301 if host_</span><span class="si">${</span><span class="kr">builtins</span><span class="o">.</span><span class="nv">replaceStrings</span> <span class="p">[</span> <span class="s2">"."</span> <span class="p">]</span> <span class="p">[</span> <span class="s2">"_"</span> <span class="p">]</span> <span class="nv">d</span><span class="si">}</span><span class="s2">"</span>
+  <span class="p">)</span> <span class="nv">serverNames</span><span class="p">);</span>
+  <span class="c"># use_backend lines</span>
+  <span class="nv">backendLines</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">concatStringsSep</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="p">(</span><span class="kr">map</span> <span class="p">(</span><span class="nv">d</span><span class="p">:</span>
+    <span class="kd">let</span>
+      <span class="nv">aclName</span> <span class="o">=</span> <span class="s2">"host_</span><span class="si">${</span><span class="kr">builtins</span><span class="o">.</span><span class="nv">replaceStrings</span> <span class="p">[</span> <span class="s2">"."</span> <span class="p">]</span> <span class="p">[</span> <span class="s2">"_"</span> <span class="p">]</span> <span class="nv">d</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+      <span class="nv">backendName</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">replaceStrings</span> <span class="p">[</span> <span class="s2">"."</span> <span class="p">]</span> <span class="p">[</span> <span class="s2">"_"</span> <span class="p">]</span> <span class="nv">d</span><span class="p">;</span>
+    <span class="kn">in</span> <span class="s2">"  use_backend </span><span class="si">${</span><span class="nv">backendName</span><span class="si">}</span><span class="s2">_app if </span><span class="si">${</span><span class="nv">aclName</span><span class="si">}</span><span class="s2">"</span>
+  <span class="p">)</span> <span class="nv">serverNames</span><span class="p">);</span>
+  <span class="c"># crt files</span>
+  <span class="nv">crtFiles</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">concatStringsSep</span> <span class="s2">" "</span> <span class="p">(</span><span class="kr">map</span> <span class="p">(</span><span class="nv">d</span><span class="p">:</span>
+    <span class="s2">"crt /var/lib/haproxy/certs/</span><span class="si">${</span><span class="nv">d</span><span class="si">}</span><span class="s2">.pem"</span>
+  <span class="p">)</span> <span class="nv">serverNames</span><span class="p">);</span>
+  <span class="c"># backend definitions</span>
+  <span class="nv">backendDefs</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">concatStringsSep</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="p">(</span><span class="kr">map</span> <span class="p">(</span><span class="nv">d</span><span class="p">:</span>
+    <span class="kd">let</span>
+      <span class="nv">backendName</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">replaceStrings</span> <span class="p">[</span> <span class="s2">"."</span> <span class="p">]</span> <span class="p">[</span> <span class="s2">"_"</span> <span class="p">]</span> <span class="nv">d</span><span class="p">;</span>
+      <span class="nv">backendAddr</span> <span class="o">=</span> <span class="nv">serverBackends</span><span class="o">.</span><span class="p">${</span><span class="nv">d</span><span class="p">};</span>
+      <span class="nv">indent</span> <span class="o">=</span> <span class="s2">"    "</span><span class="p">;</span> <span class="c"># 1 tab = 4 spaces</span>
+    <span class="kn">in</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">      backend </span><span class="si">${</span><span class="nv">backendName</span><span class="si">}</span><span class="s2">_app</span><span class="err">
+</span><span class="s2">        mode http</span><span class="err">
+</span><span class="s2">        server </span><span class="si">${</span><span class="nv">backendName</span><span class="si">}</span><span class="s2">_1 </span><span class="si">${</span><span class="nv">backendAddr</span><span class="si">}</span><span class="s2"> check inter 2s fall 3 rise 2</span><span class="err">
+</span><span class="s2">        errorfiles customerrors</span><span class="err">
+</span><span class="s2">    ''</span>
+  <span class="p">)</span> <span class="nv">serverNames</span><span class="p">);</span>
+<span class="kn">in</span> <span class="p">{</span>
+  <span class="c"># SSL certificates for HAProxy</span>
+  <span class="nv">security</span><span class="o">.</span><span class="nv">acme</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">acceptTerms</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="nv">defaults</span><span class="o">.</span><span class="nv">email</span> <span class="o">=</span> <span class="nv">acme_email</span><span class="p">;</span>
+    <span class="nv">certs</span> <span class="o">=</span> <span class="kr">builtins</span><span class="o">.</span><span class="nv">listToAttrs</span> <span class="p">(</span><span class="kr">map</span> <span class="p">(</span><span class="nv">domain</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nv">name</span> <span class="o">=</span> <span class="nv">domain</span><span class="p">;</span>
+      <span class="nv">value</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nv">webroot</span> <span class="o">=</span> <span class="s2">"/var/lib/acme/acme-challenge"</span><span class="p">;</span>
+        <span class="nv">group</span> <span class="o">=</span> <span class="s2">"haproxy"</span><span class="p">;</span>
+        <span class="nv">postRun</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">          mkdir -p /var/lib/haproxy/certs</span><span class="err">
+</span><span class="s2">          cat /var/lib/acme/</span><span class="si">${</span><span class="nv">domain</span><span class="si">}</span><span class="s2">/fullchain.pem \</span><span class="err">
+</span><span class="s2">            /var/lib/acme/</span><span class="si">${</span><span class="nv">domain</span><span class="si">}</span><span class="s2">/key.pem \</span><span class="err">
+</span><span class="s2">            &gt; /var/lib/haproxy/certs/</span><span class="si">${</span><span class="nv">domain</span><span class="si">}</span><span class="s2">.pem</span><span class="err">
+</span><span class="s2">          chown root:haproxy /var/lib/haproxy/certs/</span><span class="si">${</span><span class="nv">domain</span><span class="si">}</span><span class="s2">.pem</span><span class="err">
+</span><span class="s2">          chmod 0640 /var/lib/haproxy/certs/</span><span class="si">${</span><span class="nv">domain</span><span class="si">}</span><span class="s2">.pem</span><span class="err">
+</span><span class="s2">        ''</span><span class="p">;</span>
+      <span class="p">};</span>
+    <span class="p">})</span> <span class="nv">serverNames</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="c"># HAProxy service</span>
+  <span class="nv">services</span><span class="o">.</span><span class="nv">haproxy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="nv">config</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">      global</span><span class="err">
+</span><span class="s2">        log stdout format raw local0</span><span class="err">
+</span><span class="s2">        maxconn 2000</span><span class="err">
+
+</span><span class="s2">      defaults</span><span class="err">
+</span><span class="s2">        log global</span><span class="err">
+</span><span class="s2">        mode http</span><span class="err">
+</span><span class="s2">        option httplog</span><span class="err">
+</span><span class="s2">        option dontlognull</span><span class="err">
+</span><span class="s2">        option forwardfor except 127.0.0.1</span><span class="err">
+</span><span class="s2">        timeout connect 5s</span><span class="err">
+</span><span class="s2">        timeout client 30s</span><span class="err">
+</span><span class="s2">        timeout server 30s</span><span class="err">
+</span><span class="s2">        retries 3</span><span class="err">
+
+</span><span class="s2">      frontend http_in</span><span class="err">
+</span><span class="s2">        bind *:80</span><span class="err">
+</span><span class="s2">        acl acme_challenge path_beg /.well-known/acme-challenge/</span><span class="err">
+</span><span class="s2">        use_backend acme_backend if acme_challenge</span><span class="err">
+</span><span class="s2">        acl host_zt hdr(host) -i stephen.zerotier</span><span class="err">
+</span><span class="s2">        </span><span class="si">${</span><span class="nv">aclLines</span><span class="si">}</span><span class="err">
+</span><span class="s2">        use_backend something_one_maikeladas_es_app if host_zt</span><span class="err">
+</span><span class="s2">        </span><span class="si">${</span><span class="nv">redirectLines</span><span class="si">}</span><span class="err">
+</span><span class="s2">        default_backend not_found</span><span class="err">
+
+</span><span class="s2">      frontend https_in</span><span class="err">
+</span><span class="s2">        bind *:443 ssl </span><span class="si">${</span><span class="nv">crtFiles</span><span class="si">}</span><span class="err">
+</span><span class="s2">        mode http</span><span class="err">
+</span><span class="s2">        acl acme_challenge path_beg /.well-known/acme-challenge/</span><span class="err">
+</span><span class="s2">        </span><span class="si">${</span><span class="nv">aclLines</span><span class="si">}</span><span class="err">
+</span><span class="s2">        use_backend acme_backend if acme_challenge</span><span class="err">
+</span><span class="s2">        </span><span class="si">${</span><span class="nv">backendLines</span><span class="si">}</span><span class="err">
+</span><span class="s2">        default_backend not_found</span><span class="err">
+
+</span><span class="s2">      backend acme_backend</span><span class="err">
+</span><span class="s2">        mode http</span><span class="err">
+</span><span class="s2">        server local_acme 127.0.0.1:8081</span><span class="err">
+
+</span><span class="s2">      </span><span class="si">${</span><span class="nv">backendDefs</span><span class="si">}</span><span class="err">
+
+</span><span class="s2">      http-errors customerrors</span><span class="err">
+</span><span class="s2">        errorfile 503 /etc/haproxy/errorfiles/503.http</span><span class="err">
+
+</span><span class="s2">      backend not_found</span><span class="err">
+</span><span class="s2">        mode http</span><span class="err">
+</span><span class="s2">        errorfiles customerrors</span><span class="err">
+</span><span class="s2">    ''</span><span class="p">;</span>
+    <span class="nv">user</span> <span class="o">=</span> <span class="s2">"haproxy"</span><span class="p">;</span>
+    <span class="nv">group</span> <span class="o">=</span> <span class="s2">"haproxy"</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="nv">environment</span><span class="o">.</span><span class="nv">etc</span><span class="o">.</span><span class="s2">"haproxy/errorfiles/503.http"</span><span class="o">.</span><span class="nv">text</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">    HTTP/1.1 503 Service Unavailable</span><span class="err">
+</span><span class="s2">    Cache-Control: no-cache</span><span class="err">
+</span><span class="s2">    Connection: close</span><span class="err">
+</span><span class="s2">    Content-Type: text/html</span><span class="err">
+</span><span class="s2">    </span><span class="si">${</span><span class="kr">builtins</span><span class="o">.</span><span class="nv">readFile</span> <span class="sx">./haproxy-error-503.html</span><span class="si">}</span><span class="err">
+</span><span class="s2">  ''</span><span class="p">;</span>
+
+  <span class="c"># Local HTTP server to serve ACME challenges</span>
+  <span class="nv">systemd</span><span class="o">.</span><span class="nv">services</span><span class="o">.</span><span class="nv">acme-challenge-server</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">description</span> <span class="o">=</span> <span class="s2">"Serve Let's Encrypt challenges for HAProxy"</span><span class="p">;</span>
+    <span class="nv">wantedBy</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"multi-user.target"</span> <span class="p">];</span>
+    <span class="nv">serviceConfig</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nv">ExecStart</span> <span class="o">=</span> <span class="s2">"</span><span class="si">${</span><span class="nv">pkgs</span><span class="o">.</span><span class="nv">python3</span><span class="si">}</span><span class="s2">/bin/python3 -m http.server 8081 --directory /var/lib/acme/acme-challenge"</span><span class="p">;</span>
+      <span class="nv">Restart</span> <span class="o">=</span> <span class="s2">"always"</span><span class="p">;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="your-laptop-or-other-pc-configuration-to-be-accessible">Your laptop or other PC configuration to be accessible</h1>
+
+<p>Assuming you use Zerotier (is free) and have it in the same network as the server (I do) and you know the IP or domain name if you have it in /etc/hosts (I do but I prefer to use IPs). Notice how I’ve limited the listening interfaces to that one of Zerotier only.</p>
+
+<p>Of course import this file in your configuration for that machine. I call it <code class="language-plaintext highlighter-rouge">haproxy-redirect.nix</code> to make it clear what the nix contains.</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nv">config</span><span class="p">,</span> <span class="nv">pkgs</span><span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+<span class="p">{</span>
+  <span class="c"># HAProxy service</span>
+  <span class="nv">services</span><span class="o">.</span><span class="nv">haproxy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="nv">config</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">      global</span><span class="err">
+</span><span class="s2">        log stdout format raw local0</span><span class="err">
+</span><span class="s2">        maxconn 2000</span><span class="err">
+
+</span><span class="s2">      defaults</span><span class="err">
+</span><span class="s2">        log global</span><span class="err">
+</span><span class="s2">        mode http</span><span class="err">
+</span><span class="s2">        option httplog</span><span class="err">
+</span><span class="s2">        option dontlognull</span><span class="err">
+</span><span class="s2">        option forwardfor except 127.0.0.1</span><span class="err">
+</span><span class="s2">        timeout connect 5s</span><span class="err">
+</span><span class="s2">        timeout client 30s</span><span class="err">
+</span><span class="s2">        timeout server 30s</span><span class="err">
+</span><span class="s2">        retries 3</span><span class="err">
+
+</span><span class="s2">      frontend local_http</span><span class="err">
+</span><span class="s2">        bind thinkpad.zerotier:8080</span><span class="err">
+</span><span class="s2">        default_backend phoenix_app</span><span class="err">
+
+</span><span class="s2">      backend phoenix_app</span><span class="err">
+</span><span class="s2">        server phoenix_1 127.0.0.1:4000 check inter 2s fall 3 rise 2</span><span class="err">
+</span><span class="s2">        errorfile 503 /etc/haproxy/errorfiles/503.http</span><span class="err">
+</span><span class="s2">    ''</span><span class="p">;</span>
+    <span class="nv">user</span> <span class="o">=</span> <span class="s2">"haproxy"</span><span class="p">;</span>
+    <span class="nv">group</span> <span class="o">=</span> <span class="s2">"haproxy"</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="nv">environment</span><span class="o">.</span><span class="nv">etc</span><span class="o">.</span><span class="s2">"haproxy/errorfiles/503.http"</span><span class="o">.</span><span class="nv">text</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">    HTTP/1.1 503 Service Unavailable</span><span class="err">
+</span><span class="s2">    Cache-Control: no-cache</span><span class="err">
+</span><span class="s2">    Connection: close</span><span class="err">
+</span><span class="s2">    Content-Type: text/html</span><span class="err">
+</span><span class="s2">    </span><span class="si">${</span><span class="kr">builtins</span><span class="o">.</span><span class="nv">readFile</span> <span class="sx">./haproxy-error-503.html</span><span class="si">}</span><span class="err">
+</span><span class="s2">  ''</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="the-default-503-error-file">The default 503 error file</h2>
+
+<p><img src="/assets/images/2025-10-image-1.png" alt="Image" /></p>
+
+<p>All errors I got when I turned off any of them servers were of type 503 so that’s the error I customised. The files is <code class="language-plaintext highlighter-rouge">haproxy-error-503.html</code> and should be in the same folder as the nix configuration. The content is this</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Service Unavailable<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;style&gt;</span>
+      <span class="nt">body</span> <span class="p">{</span>
+        <span class="nl">font-family</span><span class="p">:</span> <span class="o">-</span><span class="n">apple-system</span><span class="p">,</span> <span class="n">BlinkMacSystemFont</span><span class="p">,</span> <span class="s1">"Segoe UI"</span><span class="p">,</span> <span class="n">Roboto</span><span class="p">,</span> <span class="nb">sans-serif</span><span class="p">;</span>
+        <span class="nl">background</span><span class="p">:</span> <span class="nx">#fafafa</span><span class="p">;</span>
+        <span class="nl">color</span><span class="p">:</span> <span class="nx">#333</span><span class="p">;</span>
+        <span class="nl">margin</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
+        <span class="nl">display</span><span class="p">:</span> <span class="nb">flex</span><span class="p">;</span>
+        <span class="nl">align-items</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+        <span class="nl">justify-content</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+        <span class="nl">height</span><span class="p">:</span> <span class="m">100vh</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="nt">main</span> <span class="p">{</span>
+        <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+        <span class="nl">padding</span><span class="p">:</span> <span class="m">2rem</span><span class="p">;</span>
+        <span class="nl">background</span><span class="p">:</span> <span class="nx">white</span><span class="p">;</span>
+        <span class="nl">border-radius</span><span class="p">:</span> <span class="m">1rem</span><span class="p">;</span>
+        <span class="nl">box-shadow</span><span class="p">:</span> <span class="m">0</span> <span class="m">4px</span> <span class="m">12px</span> <span class="nf">rgba</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0.08</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="nt">h1</span> <span class="p">{</span>
+        <span class="nl">font-size</span><span class="p">:</span> <span class="m">2rem</span><span class="p">;</span>
+        <span class="nl">margin-bottom</span><span class="p">:</span> <span class="m">0.5rem</span><span class="p">;</span>
+        <span class="nl">color</span><span class="p">:</span> <span class="nx">#c0392b</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="nt">p</span> <span class="p">{</span>
+        <span class="nl">font-size</span><span class="p">:</span> <span class="m">1rem</span><span class="p">;</span>
+        <span class="nl">color</span><span class="p">:</span> <span class="nx">#666</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="nt">&lt;/style&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;main&gt;</span>
+      <span class="nt">&lt;h1&gt;</span>503 – Service Unavailable<span class="nt">&lt;/h1&gt;</span>
+      <span class="nt">&lt;p&gt;</span>Our server is taking a quick break. Please try again in a moment.<span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;/main&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
 <h1 id="advantages-over-the-pagekite-way">Advantages over the Pagekite way</h1>
 
 <ol>

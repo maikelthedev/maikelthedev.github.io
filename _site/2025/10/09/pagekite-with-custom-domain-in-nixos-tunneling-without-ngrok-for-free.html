@@ -67,7 +67,7 @@
       
       
       
-      <span class="post-reading-time">5 min read</span>
+      <span class="post-reading-time">8 min read</span>
       
       
     </div>
@@ -80,8 +80,26 @@
 
 <h2 id="getting-ssl">Getting SSL</h2>
 
-<p>Think that here <code class="language-plaintext highlighter-rouge">DOMAIN</code> is going to be the parent domain. I could make it be directly maikeladas.es but I have other stuff there and using a wildcard would force me to get rid of subdomains so I rather use a subdomain for specific temporary stuff, in this case <code class="language-plaintext highlighter-rouge">dev.maikeladas.es</code>. I could have used <code class="language-plaintext highlighter-rouge">maikel.dev</code>but the restrictions of dev domains that you cannot use port 80. They force you to use 443 and SSL. I want flexibility.
-<code>mkdir $HOME/certs set DOMAIN dev.maikeladas.es nix-shell -p certbot certbot certonly --manual \ --work-dir=$HOME/certs --logs-dir=/tmp/ --config-dir=$HOME/certs \ --preferred-challenges=dns \ --email avalid@email.whatever \ --server https://acme-v02.api.letsencrypt.org/directory \ --agree-tos \ -d "*.$DOMAIN" exit sudo cat \ $HOME/certs/live/$DOMAIN/fullchain.pem \ $HOME/certs/live/$DOMAIN/privkey.pem \ | sudo tee $HOME/certs/keycert.pem &gt; /dev/null `&lt;/pre&gt;&lt;p&gt;Now you have the keycert.pem file that Pagekite requires to provide domains over HTTPS. The certificate will require renewal every 6 months. It can be automated but that's for another day.</code></p>
+<p>Think that here <code class="language-plaintext highlighter-rouge">DOMAIN</code> is going to be the parent domain. I could make it be directly maikeladas.es but I have other stuff there and using a wildcard would force me to get rid of subdomains so I rather use a subdomain for specific temporary stuff, in this case <code class="language-plaintext highlighter-rouge">dev.maikeladas.es</code>. I could have used <code class="language-plaintext highlighter-rouge">maikel.dev</code>but the restrictions of dev domains that you cannot use port 80. They force you to use 443 and SSL. I want flexibility.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nv">$HOME</span>/certs
+<span class="nb">set </span>DOMAIN dev.maikeladas.es
+nix-shell <span class="nt">-p</span> certbot
+certbot certonly <span class="nt">--manual</span> <span class="se">\</span>
+  <span class="nt">--work-dir</span><span class="o">=</span><span class="nv">$HOME</span>/certs <span class="nt">--logs-dir</span><span class="o">=</span>/tmp/ <span class="nt">--config-dir</span><span class="o">=</span><span class="nv">$HOME</span>/certs <span class="se">\</span>
+  <span class="nt">--preferred-challenges</span><span class="o">=</span>dns <span class="se">\</span>
+  <span class="nt">--email</span> avalid@email.whatever <span class="se">\</span>
+  <span class="nt">--server</span> https://acme-v02.api.letsencrypt.org/directory <span class="se">\</span>
+  <span class="nt">--agree-tos</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s2">"*.</span><span class="nv">$DOMAIN</span><span class="s2">"</span>
+<span class="nb">exit
+sudo cat</span> <span class="se">\</span>
+  <span class="nv">$HOME</span>/certs/live/<span class="nv">$DOMAIN</span>/fullchain.pem <span class="se">\</span>
+  <span class="nv">$HOME</span>/certs/live/<span class="nv">$DOMAIN</span>/privkey.pem <span class="se">\</span>
+  | <span class="nb">sudo tee</span> <span class="nv">$HOME</span>/certs/keycert.pem <span class="o">&gt;</span> /dev/null
+</code></pre></div></div>
+
+<p>Now you have the keycert.pem file that Pagekite requires to provide domains over HTTPS. The certificate will require renewal every 6 months. It can be automated but that’s for another day.</p>
 
 <h2 id="do-your-dns-changes">Do your DNS changes</h2>
 
@@ -89,11 +107,133 @@
 
 <h2 id="nixos-changes-to-get-pagekite">NixOS Changes to get Pagekite</h2>
 
-<p>Assuming you use configuration.nix or somefile.nix that is not a flake.
-<code>{ config, lib, pkgs, ... }: let kitesecret = "YOUR_KITE_PASS"; pagekite = import ./pagekite-package.nix" { inherit pkgs; }; in { # The rest of your config # To install the derivation while keeping it around to pass it environment.systemPackages = lib.mkAfter [ pagekite ]; imports = [ # ...your other imports # Import as functions, passing pagekite and kitesecret explicitly # If this machine is the client (import ./pagekite-client.nix { inherit config pkgs lib pagekite kitesecret; frontendHost = "dev.maikeladas.es"; frontendPort = 80; backendHost = "stephen.dev.maikeladas.es"; backendLocalPort = 4000; }) # If this machine is the server (import ./pagekite-server.nix { inherit config pkgs lib pagekite kitesecret; kitename = "*.dev.maikeladas.es"; ports = "80,443"; protos = "http,https"; domainHttp = "*.dev.maikeladas.es"; domainHttps = "*.dev.maikeladas.es"; tlsEndpoint = "*.dev.maikeladas.es:/home/maikel/certs/keycert.pem"; }) ]; # The rest of your /etc/nixos/configuration.nix file } `&lt;/pre&gt; ## Then the pagekite-package.nix &lt;p&gt;This is all you need to intsall pagekite.py
-<code>{ pkgs }: pkgs.stdenv.mkDerivation rec { pname = "pagekite"; version = "1.0"; src = pkgs.fetchurl { url = "https://pagekite.net/pk/pagekite.py"; sha256 = "1nqa4nkhjq2shc7zpxn22pxfqpsl6xf06mfxlwa72c5p72zf7x94"; }; nativeBuildInputs = [ pkgs.makeWrapper ]; unpackPhase = ":"; installPhase = '' mkdir -p $out/bin sed "1 s|^.*$|#!${pkgs.python3}/bin/python3|" $src &gt; $out/bin/pagekite chmod +x $out/bin/pagekite ''; } `&lt;/pre&gt; ## Then the pagekite-client.nix &lt;p&gt;This is the one to use a client.
-<code>{ config, pkgs, lib, kitesecret, pagekite, frontendHost, frontendPort, backendHost, backendLocalPort, ... }: let # Construct addresses frontend = "${frontendHost}:${toString frontendPort}"; backend = "http:${backendHost}:localhost:${toString backendLocalPort}"; in { # PageKite client configuration file environment.etc."pagekite.d/${backendHost}.conf".text = '' frontend = ${frontend} service_on = ${backend}:${kitesecret} ''; # Systemd service systemd.services."pagekite-client-${backendHost}" = { description = "PageKite Client Tunnel Service for ${backendHost}"; after = [ "network.target" ]; wantedBy = [ "multi-user.target" ]; serviceConfig = { Type = "simple"; ExecStart = "${pagekite}/bin/pagekite --optfile /etc/pagekite.d/${backendHost}.conf"; Restart = "always"; RestartSec = 10; User = "root"; }; }; } `&lt;/pre&gt; ## Then the pagekite-server.nix &lt;p&gt;This is the one to run a server. This machine needs to be one that responds when you ping `dev.YOURDOMAIN.COM` and `*.dev.YOURDOMAIN.COM` so you must have your DNS configured correctly.
-<code>{ config, pkgs, lib, kitesecret, pagekite, kitename, ports, protos, domainHttp, domainHttps, tlsEndpoint, ... }: { # PageKite server configuration file environment.etc."pagekite.d/pk-server.conf".text = '' kitename = ${kitename} kitesecret = ${kitesecret} isfrontend ports = ${ports} protos = ${protos} domain = http:${domainHttp}:${kitesecret} domain = https:${domainHttps}:${kitesecret} tls_endpoint = ${tlsEndpoint} ''; # Systemd service systemd.services.pagekite = { description = "PageKite Reverse Tunnel Service"; after = [ "network.target" ]; wantedBy = [ "multi-user.target" ]; serviceConfig = { Type = "simple"; ExecStart = "${pagekite}/bin/pagekite --optfile /etc/pagekite.d/pk-server.conf"; Restart = "always"; RestartSec = 10; User = "root"; }; }; } `&lt;/pre&gt; # How to use it &lt;p&gt;On whatever machine plays as server add the necessary files to run the server, and on the client for the client. Both cases need pagekite-package.nix though. Then just `nixos-rebuild switch` or whatever NixOS method you use to update your config.</code></code></code></code></p>
+<p>Assuming you use configuration.nix or somefile.nix that is not a flake.</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nv">config</span><span class="p">,</span> <span class="nv">lib</span><span class="p">,</span> <span class="nv">pkgs</span><span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+<span class="kd">let</span>
+  <span class="nv">kitesecret</span> <span class="o">=</span> <span class="s2">"YOUR_KITE_PASS"</span><span class="p">;</span>
+  <span class="nv">pagekite</span> <span class="o">=</span> <span class="kr">import</span> <span class="sx">./pagekite-package.nix</span> <span class="p">{</span> <span class="kn">inherit</span> <span class="nv">pkgs</span><span class="p">;</span> <span class="p">};</span>
+<span class="kn">in</span> <span class="p">{</span>
+  <span class="c"># The rest of your config</span>
+  <span class="c"># To install the derivation while keeping it around to pass it</span>
+  <span class="nv">environment</span><span class="o">.</span><span class="nv">systemPackages</span> <span class="o">=</span> <span class="nv">lib</span><span class="o">.</span><span class="nv">mkAfter</span> <span class="p">[</span> <span class="nv">pagekite</span> <span class="p">];</span>
+  <span class="nv">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c"># ...your other imports</span>
+    <span class="c"># Import as functions, passing pagekite and kitesecret explicitly</span>
+    <span class="c"># If this machine is the client</span>
+    <span class="p">(</span><span class="kr">import</span> <span class="sx">./pagekite-client.nix</span> <span class="p">{</span>
+      <span class="kn">inherit</span> <span class="nv">config</span> <span class="nv">pkgs</span> <span class="nv">lib</span> <span class="nv">pagekite</span> <span class="nv">kitesecret</span><span class="p">;</span>
+      <span class="nv">frontendHost</span> <span class="o">=</span> <span class="s2">"dev.maikeladas.es"</span><span class="p">;</span>
+      <span class="nv">frontendPort</span> <span class="o">=</span> <span class="mi">80</span><span class="p">;</span>
+      <span class="nv">backendHost</span> <span class="o">=</span> <span class="s2">"stephen.dev.maikeladas.es"</span><span class="p">;</span>
+      <span class="nv">backendLocalPort</span> <span class="o">=</span> <span class="mi">4000</span><span class="p">;</span>
+    <span class="p">})</span>
+    <span class="c"># If this machine is the server</span>
+    <span class="p">(</span><span class="kr">import</span> <span class="sx">./pagekite-server.nix</span> <span class="p">{</span>
+      <span class="kn">inherit</span> <span class="nv">config</span> <span class="nv">pkgs</span> <span class="nv">lib</span> <span class="nv">pagekite</span> <span class="nv">kitesecret</span><span class="p">;</span>
+      <span class="nv">kitename</span> <span class="o">=</span> <span class="s2">"*.dev.maikeladas.es"</span><span class="p">;</span>
+      <span class="nv">ports</span> <span class="o">=</span> <span class="s2">"80,443"</span><span class="p">;</span>
+      <span class="nv">protos</span> <span class="o">=</span> <span class="s2">"http,https"</span><span class="p">;</span>
+      <span class="nv">domainHttp</span> <span class="o">=</span> <span class="s2">"*.dev.maikeladas.es"</span><span class="p">;</span>
+      <span class="nv">domainHttps</span> <span class="o">=</span> <span class="s2">"*.dev.maikeladas.es"</span><span class="p">;</span>
+      <span class="nv">tlsEndpoint</span> <span class="o">=</span> <span class="s2">"*.dev.maikeladas.es:/home/maikel/certs/keycert.pem"</span><span class="p">;</span>
+    <span class="p">})</span>
+  <span class="p">];</span>
+  <span class="c"># The rest of your /etc/nixos/configuration.nix file</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="then-the-pagekite-packagenix">Then the pagekite-package.nix</h2>
+
+<p>This is all you need to intsall pagekite.py</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nv">pkgs</span> <span class="p">}:</span>
+<span class="nv">pkgs</span><span class="o">.</span><span class="nv">stdenv</span><span class="o">.</span><span class="nv">mkDerivation</span> <span class="kr">rec</span> <span class="p">{</span>
+  <span class="nv">pname</span> <span class="o">=</span> <span class="s2">"pagekite"</span><span class="p">;</span>
+  <span class="nv">version</span> <span class="o">=</span> <span class="s2">"1.0"</span><span class="p">;</span>
+  <span class="nv">src</span> <span class="o">=</span> <span class="nv">pkgs</span><span class="o">.</span><span class="nv">fetchurl</span> <span class="p">{</span>
+    <span class="nv">url</span> <span class="o">=</span> <span class="s2">"https://pagekite.net/pk/pagekite.py"</span><span class="p">;</span>
+    <span class="nv">sha256</span> <span class="o">=</span> <span class="s2">"1nqa4nkhjq2shc7zpxn22pxfqpsl6xf06mfxlwa72c5p72zf7x94"</span><span class="p">;</span>
+  <span class="p">};</span>
+  <span class="nv">nativeBuildInputs</span> <span class="o">=</span> <span class="p">[</span> <span class="nv">pkgs</span><span class="o">.</span><span class="nv">makeWrapper</span> <span class="p">];</span>
+  <span class="nv">unpackPhase</span> <span class="o">=</span> <span class="s2">":"</span><span class="p">;</span>
+  <span class="nv">installPhase</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">    mkdir -p $out/bin</span><span class="err">
+</span><span class="s2">    sed "1 s|^.*$|#!</span><span class="si">${</span><span class="nv">pkgs</span><span class="o">.</span><span class="nv">python3</span><span class="si">}</span><span class="s2">/bin/python3|" $src &gt; $out/bin/pagekite</span><span class="err">
+</span><span class="s2">    chmod +x $out/bin/pagekite</span><span class="err">
+</span><span class="s2">  ''</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="then-the-pagekite-clientnix">Then the pagekite-client.nix</h2>
+
+<p>This is the one to use a client.</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nv">config</span><span class="p">,</span> <span class="nv">pkgs</span><span class="p">,</span> <span class="nv">lib</span><span class="p">,</span> <span class="nv">kitesecret</span><span class="p">,</span> <span class="nv">pagekite</span><span class="p">,</span> <span class="nv">frontendHost</span><span class="p">,</span> <span class="nv">frontendPort</span><span class="p">,</span> <span class="nv">backendHost</span><span class="p">,</span> <span class="nv">backendLocalPort</span><span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+<span class="kd">let</span>
+  <span class="c"># Construct addresses</span>
+  <span class="nv">frontend</span> <span class="o">=</span> <span class="s2">"</span><span class="si">${</span><span class="nv">frontendHost</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="kr">toString</span> <span class="nv">frontendPort</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+  <span class="nv">backend</span> <span class="o">=</span> <span class="s2">"http:</span><span class="si">${</span><span class="nv">backendHost</span><span class="si">}</span><span class="s2">:localhost:</span><span class="si">${</span><span class="kr">toString</span> <span class="nv">backendLocalPort</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+<span class="kn">in</span> <span class="p">{</span>
+  <span class="c"># PageKite client configuration file</span>
+  <span class="nv">environment</span><span class="o">.</span><span class="nv">etc</span><span class="o">.</span><span class="s2">"pagekite.d/</span><span class="si">${</span><span class="nv">backendHost</span><span class="si">}</span><span class="s2">.conf"</span><span class="o">.</span><span class="nv">text</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">    frontend = </span><span class="si">${</span><span class="nv">frontend</span><span class="si">}</span><span class="err">
+</span><span class="s2">    service_on = </span><span class="si">${</span><span class="nv">backend</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">kitesecret</span><span class="si">}</span><span class="err">
+</span><span class="s2">  ''</span><span class="p">;</span>
+
+  <span class="c"># Systemd service</span>
+  <span class="nv">systemd</span><span class="o">.</span><span class="nv">services</span><span class="o">.</span><span class="s2">"pagekite-client-</span><span class="si">${</span><span class="nv">backendHost</span><span class="si">}</span><span class="s2">"</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">description</span> <span class="o">=</span> <span class="s2">"PageKite Client Tunnel Service for </span><span class="si">${</span><span class="nv">backendHost</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span>
+    <span class="nv">after</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"network.target"</span> <span class="p">];</span>
+    <span class="nv">wantedBy</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"multi-user.target"</span> <span class="p">];</span>
+    <span class="nv">serviceConfig</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nv">Type</span> <span class="o">=</span> <span class="s2">"simple"</span><span class="p">;</span>
+      <span class="nv">ExecStart</span> <span class="o">=</span> <span class="s2">"</span><span class="si">${</span><span class="nv">pagekite</span><span class="si">}</span><span class="s2">/bin/pagekite --optfile /etc/pagekite.d/</span><span class="si">${</span><span class="nv">backendHost</span><span class="si">}</span><span class="s2">.conf"</span><span class="p">;</span>
+      <span class="nv">Restart</span> <span class="o">=</span> <span class="s2">"always"</span><span class="p">;</span>
+      <span class="nv">RestartSec</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+      <span class="nv">User</span> <span class="o">=</span> <span class="s2">"root"</span><span class="p">;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="then-the-pagekite-servernix">Then the pagekite-server.nix</h2>
+
+<p>This is the one to run a server. This machine needs to be one that responds when you ping <code class="language-plaintext highlighter-rouge">dev.YOURDOMAIN.COM</code> and <code class="language-plaintext highlighter-rouge">*.dev.YOURDOMAIN.COM</code> so you must have your DNS configured correctly.</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nv">config</span><span class="p">,</span> <span class="nv">pkgs</span><span class="p">,</span> <span class="nv">lib</span><span class="p">,</span> <span class="nv">kitesecret</span><span class="p">,</span> <span class="nv">pagekite</span><span class="p">,</span> <span class="nv">kitename</span><span class="p">,</span> <span class="nv">ports</span><span class="p">,</span> <span class="nv">protos</span><span class="p">,</span> <span class="nv">domainHttp</span><span class="p">,</span> <span class="nv">domainHttps</span><span class="p">,</span> <span class="nv">tlsEndpoint</span><span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+<span class="p">{</span>
+  <span class="c"># PageKite server configuration file</span>
+  <span class="nv">environment</span><span class="o">.</span><span class="nv">etc</span><span class="o">.</span><span class="s2">"pagekite.d/pk-server.conf"</span><span class="o">.</span><span class="nv">text</span> <span class="o">=</span> <span class="s2">''</span><span class="err">
+</span><span class="s2">    kitename = </span><span class="si">${</span><span class="nv">kitename</span><span class="si">}</span><span class="err">
+</span><span class="s2">    kitesecret = </span><span class="si">${</span><span class="nv">kitesecret</span><span class="si">}</span><span class="err">
+</span><span class="s2">    isfrontend</span><span class="err">
+</span><span class="s2">    ports = </span><span class="si">${</span><span class="nv">ports</span><span class="si">}</span><span class="err">
+</span><span class="s2">    protos = </span><span class="si">${</span><span class="nv">protos</span><span class="si">}</span><span class="err">
+</span><span class="s2">    domain = http:</span><span class="si">${</span><span class="nv">domainHttp</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">kitesecret</span><span class="si">}</span><span class="err">
+</span><span class="s2">    domain = https:</span><span class="si">${</span><span class="nv">domainHttps</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">kitesecret</span><span class="si">}</span><span class="err">
+</span><span class="s2">    tls_endpoint = </span><span class="si">${</span><span class="nv">tlsEndpoint</span><span class="si">}</span><span class="err">
+</span><span class="s2">  ''</span><span class="p">;</span>
+
+  <span class="c"># Systemd service</span>
+  <span class="nv">systemd</span><span class="o">.</span><span class="nv">services</span><span class="o">.</span><span class="nv">pagekite</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">description</span> <span class="o">=</span> <span class="s2">"PageKite Reverse Tunnel Service"</span><span class="p">;</span>
+    <span class="nv">after</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"network.target"</span> <span class="p">];</span>
+    <span class="nv">wantedBy</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"multi-user.target"</span> <span class="p">];</span>
+    <span class="nv">serviceConfig</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nv">Type</span> <span class="o">=</span> <span class="s2">"simple"</span><span class="p">;</span>
+      <span class="nv">ExecStart</span> <span class="o">=</span> <span class="s2">"</span><span class="si">${</span><span class="nv">pagekite</span><span class="si">}</span><span class="s2">/bin/pagekite --optfile /etc/pagekite.d/pk-server.conf"</span><span class="p">;</span>
+      <span class="nv">Restart</span> <span class="o">=</span> <span class="s2">"always"</span><span class="p">;</span>
+      <span class="nv">RestartSec</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+      <span class="nv">User</span> <span class="o">=</span> <span class="s2">"root"</span><span class="p">;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="how-to-use-it">How to use it</h1>
+
+<p>On whatever machine plays as server add the necessary files to run the server, and on the client for the client. Both cases need pagekite-package.nix though. Then just <code class="language-plaintext highlighter-rouge">nixos-rebuild switch</code> or whatever NixOS method you use to update your config.</p>
 
 <p>I normally do a <code class="language-plaintext highlighter-rouge">sudo systemctl stop pagekite-client-DOMAIN</code> after running any client the first time so it’s only available when I need it.
 <img src="/assets/images/2025-10-image.png" alt="Image" /></p>

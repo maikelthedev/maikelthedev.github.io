@@ -1,4 +1,4 @@
-url: "https://maikelthedev.github.io" # the base hostname & protocol for your site
+url: "https://blog.maikel.dev" # the base hostname & protocol for your site
 baseurl: "" # the subpath of your site, e.g. /blog
 title: "Maikelology" # the name of your site, e.g. ACME Corp.
 author: "Maikel Frias Mosquea"

@@ -5,7 +5,14 @@ pagination:
   enabled: true
 ---
 
-{% assign featured_posts = site.posts | where: "featured", true | limit: 4 %}
+{% assign all_featured = site.posts | where: "featured", true | sort: "date" | reverse %}
+{% assign featured_posts = "" | split: "" %}
+{% for post in all_featured %}
+  {% if featured_posts.size < 3 %}
+    {% assign featured_posts = featured_posts | push: post %}
+  {% endif %}
+{% endfor %}
+
 {% if featured_posts.size > 0 %}
 <div class="featured-posts">
   {% for post in featured_posts %}
@@ -44,6 +51,9 @@ pagination:
           <h2 class="featured-post-title">
             <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
           </h2>
+          {% if post.excerpt %}
+          <p class="featured-post-excerpt">{{ post.excerpt }}</p>
+          {% endif %}
           <div class="featured-post-meta">
             <span class="featured-post-author">{{ site.author | default: "Maikel Frias Mosquea" }}</span>
             <span class="featured-post-date">{{ post.date | date: "%d %b %Y" }}</span>
@@ -59,7 +69,6 @@ pagination:
 <h2 class="section-heading">All Posts</h2>
 <div class="home-posts" id="posts">
   {% for post in site.posts %}
-    {% unless post.featured %}
     <article class="post-card">
       {% if post.image %}
       <a href="{{ post.url | relative_url }}" class="post-card-image">
@@ -79,6 +88,5 @@ pagination:
         </div>
       </div>
     </article>
-    {% endunless %}
   {% endfor %}
 </div>

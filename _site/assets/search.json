@@ -57,26 +57,10 @@
   },
   
   {
-    "title": "Running FreeBSD from NixOS using Libvirtd from scratch: v3.0",
-    "url": "/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0-2.html",
-    "date": "27 Sep 2025",
-    "excerpt": "In version 3 reconfigured the network, simplified the scripts, and used SED extensively to make the template even more useful. ",
-    "content": "💡This is the third version of this post as I figure how to remove complexity by going deeper into the docs and finding **the right way **to get VMs accessible by hostname. **New in this version vs v.2.0**1. Removed **add_vm_to_network** Fish-shell function since it is no longer necesary. 2. Fixed **create_vm **Fish-shell function since now it doesn't need MACs. 3. Simplified network edition. 4. Edited configuration.nix to include **nss**, which is what made everything simpler. Since now it re..."
-  },
-  
-  {
-    "title": "Running FreeBSD from NixOS using Libvirtd from scratch: v2.0",
-    "url": "/2025/09/26/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0.html",
-    "date": "26 Sep 2025",
-    "excerpt": "Update on running FreeBSD from NixOS with extra bits and bloobs. Like running Zerotier and self-authorise, automation of creation, destruction and network configuration, fixing IPs and running KDE. ",
-    "content": "💡This is the second version of this post as I added a lot of Fish shell automation and discovered how to streamline lots of processed from yesterday to today so added a lot of fish functions. **New in this version**1. I removed UFS images to avoid duplication, assume ZFS filesystem. 2. I added Fish-shell scripts to automate creation, destruction and network config. 3. I show you how to fix the IP to VMs using their MACs and hostnames. 4. I show you how to run KDE using cloud-init to configure..."
-  },
-  
-  {
     "title": "Running FreeBSD from NixOS using Libvirtd from scratch",
-    "url": "/2025/09/25/running-freebsd-from-nixos-using-libvirtd-from-scratch.html",
-    "date": "25 Sep 2025",
-    "excerpt": "How to run FreeBSD alongisde Nixos on the same computer for quick tests using libvirtd to stop having recompilation issues of VirtualBox",
+    "url": "/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch.html",
+    "date": "27 Sep 2025",
+    "excerpt": "Complete guide to running FreeBSD alongside NixOS using libvirtd, with automation scripts, network configuration, cloud-init setup, and desktop environment installation.",
     "content": "I use FreeBSD for work because my clients deploy servers on it. At home, I have a PC with 32 GB of RAM and use NixOS, so I wanted to run FreeBSD locally for quick tests.My first choice would normally be VirtualBox, but on NixOS it’s a pain: every system upgrade forces VirtualBox to be recompiled. Since I upgrade often, that became unmanageable.People in the fediverse suggested libvirtd, so I gave it a try. It’s trickier at first, but once you learn a few commands it’s not bad at all—and in fa..."
   },
   

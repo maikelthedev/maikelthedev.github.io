@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Running FreeBSD from NixOS using Libvirtd from scratch - Maikelology</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Running FreeBSD from NixOS using Libvirtd from scratch | Maikelology</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Running FreeBSD from NixOS using Libvirtd from scratch" />
+<meta name="author" content="Maikel Frias Mosquea" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Complete guide to running FreeBSD alongside NixOS using libvirtd, with automation scripts, network configuration, cloud-init setup, and desktop environment installation." />
+<meta property="og:description" content="Complete guide to running FreeBSD alongside NixOS using libvirtd, with automation scripts, network configuration, cloud-init setup, and desktop environment installation." />
+<link rel="canonical" href="http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch.html" />
+<meta property="og:url" content="http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch.html" />
+<meta property="og:site_name" content="Maikelology" />
+<meta property="og:image" content="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-09-27T00:00:00+02:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" />
+<meta property="twitter:title" content="Running FreeBSD from NixOS using Libvirtd from scratch" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Maikel Frias Mosquea"},"dateModified":"2025-09-27T00:00:00+02:00","datePublished":"2025-09-27T00:00:00+02:00","description":"Complete guide to running FreeBSD alongside NixOS using libvirtd, with automation scripts, network configuration, cloud-init setup, and desktop environment installation.","headline":"Running FreeBSD from NixOS using Libvirtd from scratch","image":"http://localhost:4000/assets/images/unsplash-1657724576853.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch.html"},"url":"http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Maikelology" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrapper">
+        <nav class="site-nav">
+          <a href="/">Home</a>
+          <a href="/categories/">Categories</a>
+          <a href="/about/">About</a>
+        </nav>
+        <a class="site-title" href="/">Maikelology</a>
+        <a href="/search/" class="search-button" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 19L14.65 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="wrapper">
+        <article class="post">
+  
+  <div class="post-featured-image">
+    <img src="/assets/images/unsplash-1657724576853.jpg" alt="Running FreeBSD from NixOS using Libvirtd from scratch">
+  </div>
+  
+  
+  <header class="post-header">
+    <h1 class="post-title">Running FreeBSD from NixOS using Libvirtd from scratch</h1>
+    
+    <p class="post-excerpt">Complete guide to running FreeBSD alongside NixOS using libvirtd, with automation scripts, network configuration, cloud-init setup, and desktop environment installation.</p>
+    
+    <div class="post-meta">
+      <span class="post-author">Maikel Frias Mosquea</span>
+      <span class="post-date">27 Sep 2025</span>
+      
+      
+      
+      
+      <span class="post-reading-time">19 min read</span>
+      
+      
+    </div>
+  </header>
+
+  <div class="post-content">
+    <p>I use <strong>FreeBSD</strong> for work because my clients deploy servers on it. At home, I have a PC with 32 GB of RAM and use <strong>NixOS</strong>, so I wanted to run FreeBSD locally for quick tests.</p>
+
+<p>My first choice would normally be <strong>VirtualBox</strong>, but on NixOS it’s a pain: every system upgrade forces VirtualBox to be recompiled. Since I upgrade often, that became unmanageable.</p>
+
+<p>People in the fediverse suggested <strong>libvirtd</strong>, so I gave it a try. It’s trickier at first, but once you learn a few commands it’s not bad at all—and in fact, it allows for a lot of automation.</p>
+
+<details>
+  <summary>Version History</summary>
+
+  <p>This guide has evolved through several iterations:</p>
+
+  <p><strong>v3.0 (Current)</strong></p>
+  <ul>
+    <li>Removed <code class="language-plaintext highlighter-rouge">add_vm_to_network</code> Fish-shell function (no longer necessary with NSS)</li>
+    <li>Fixed <code class="language-plaintext highlighter-rouge">create_vm</code> Fish-shell function (no longer needs MACs)</li>
+    <li>Simplified network edition</li>
+    <li>Added NSS configuration to <code class="language-plaintext highlighter-rouge">configuration.nix</code> for hostname resolution</li>
+    <li>Set default URI to avoid adding <code class="language-plaintext highlighter-rouge">-c qemu:///system</code> to every command</li>
+    <li>Improved <code class="language-plaintext highlighter-rouge">clone_user_data</code> function with automatic folder creation</li>
+    <li>Added repo with all functions</li>
+  </ul>
+
+  <p><strong>v2.0</strong></p>
+  <ul>
+    <li>Removed UFS images to avoid duplication (ZFS only)</li>
+    <li>Added Fish-shell scripts to automate creation, destruction and network config</li>
+    <li>Fixed IP assignment to VMs using MACs and hostnames</li>
+    <li>Added KDE desktop environment setup via cloud-init</li>
+    <li>Added Zerotier integration with self-authorization</li>
+  </ul>
+
+  <p><strong>v1.0</strong></p>
+  <ul>
+    <li>Initial guide with basic libvirtd setup</li>
+    <li>UFS and ZFS image support</li>
+    <li>Basic cloud-init configuration</li>
+  </ul>
+
+</details>
+
+<h1 id="installing-libvirtd">Installing Libvirtd</h1>
+
+<p>In <code class="language-plaintext highlighter-rouge">configuration.nix</code> you need to make the following changes.</p>
+
+<div class="language-nix highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Add the user to these groups</span>
+<span class="nv">users</span><span class="o">.</span><span class="nv">users</span><span class="o">.</span><span class="nv">maikel</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nv">extraGroups</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"libvirtd"</span><span class="p">,</span> <span class="s2">"libvirt"</span><span class="p">,</span> <span class="s2">"qemu-libvirtd"</span> <span class="p">];</span>
+<span class="p">};</span>
+
+<span class="c"># Enable libvirtd</span>
+<span class="nv">virtualisation</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nv">libvirtd</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nv">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="nv">qemu</span><span class="o">.</span><span class="nv">vhostUserPackages</span> <span class="o">=</span> <span class="kn">with</span> <span class="nv">pkgs</span><span class="p">;</span> <span class="p">[</span> <span class="nv">virtiofsd</span> <span class="p">];</span>
+    <span class="c"># Enable NSS plugin for resolving VM hostnames</span>
+    <span class="nv">nss</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nv">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>        <span class="c"># classic libvirt NSS</span>
+      <span class="nv">enableGuest</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>    <span class="c"># resolves domain names of guests</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+
+<span class="c"># Add Virt-Manager makes simpler to explore actual configs</span>
+<span class="nv">programs</span><span class="o">.</span><span class="nv">virt-manager</span><span class="o">.</span><span class="nv">enable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+<span class="nv">environment</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nv">systemPackages</span> <span class="o">=</span> <span class="kn">with</span> <span class="nv">pkgs</span><span class="p">;</span> <span class="p">[</span>
+    <span class="nv">virt-viewer</span>
+    <span class="nv">cloud-utils</span>
+    <span class="nv">cloud-init</span>
+  <span class="p">];</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h1 id="running-commands-when-using-libvirtd-as-a-systems-service">Running commands when using Libvirtd as a system’s service</h1>
+
+<p>Despite all the changes there, I still need to prepend all virsh and virt-viewer commands with <code class="language-plaintext highlighter-rouge">-c qemu:///system</code>. One way to avoid having to do this is to set the environment variable.</p>
+
+<p>For Fish shell:</p>
+
+<pre><code class="language-fish"># Run this from anywhere, it automatically stores it in ~/.config/fish/fish_variables
+set -Ux LIBVIRT_DEFAULT_URI qemu:///system
+</code></pre>
+
+<p>For Bash:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Append to ~/.bashrc or ~/.profile, whichever is the last to load on your system</span>
+<span class="nb">export </span><span class="nv">LIBVIRT_DEFAULT_URI</span><span class="o">=</span><span class="s2">"qemu:///system"</span>
+</code></pre></div></div>
+
+<p>Alternatively, you can use Fish abbreviations (which I prefer because they show you the full command):</p>
+
+<pre><code class="language-fish"># Add to ~/.config/fish/conf.d/abbreviations.fish
+abbr --add virt-viewer "virt-viewer -c qemu:///system"
+abbr --add virsh "virsh -c qemu:///system"
+</code></pre>
+
+<p>I like <code class="language-plaintext highlighter-rouge">abbr</code> instead of <code class="language-plaintext highlighter-rouge">alias</code> because with <code class="language-plaintext highlighter-rouge">abbr</code> <strong>I don’t actually forget</strong> the full command ever. It’s shown to me every time.</p>
+
+<h1 id="configuring-the-network">Configuring the Network</h1>
+
+<p>By default there’s nothing running network wise. So you need to start the default network with:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Starts it if you can't see any new networks in ifconfig</span>
+virsh net-start default
+
+<span class="c"># So it autostarts</span>
+virsh net-autostart default
+</code></pre></div></div>
+
+<p>That will run the virtual network every time the PC reboots.</p>
+
+<h2 id="modifying-the-default-network-to-your-desired-ip-range">Modifying the default network to your desired IP range</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>virsh net-dumpxml default <span class="o">&gt;</span> mynetwork.xml
+</code></pre></div></div>
+
+<p>We get this from it on the file <code class="language-plaintext highlighter-rouge">mynetwork.xml</code>:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;network&gt;</span>
+  <span class="nt">&lt;name&gt;</span>default<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;uuid&gt;</span>07c8b831-3fa7-4bb1-ae07-fad64b672a67<span class="nt">&lt;/uuid&gt;</span>
+  <span class="nt">&lt;forward</span> <span class="na">mode=</span><span class="s">'nat'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;nat&gt;</span>
+      <span class="nt">&lt;port</span> <span class="na">start=</span><span class="s">'1024'</span> <span class="na">end=</span><span class="s">'65535'</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/nat&gt;</span>
+  <span class="nt">&lt;/forward&gt;</span>
+  <span class="nt">&lt;bridge</span> <span class="na">name=</span><span class="s">'virbr0'</span> <span class="na">stp=</span><span class="s">'on'</span> <span class="na">delay=</span><span class="s">'0'</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;mac</span> <span class="na">address=</span><span class="s">'52:54:00:9f:f9:f6'</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;ip</span> <span class="na">address=</span><span class="s">'192.168.122.1'</span> <span class="na">netmask=</span><span class="s">'255.255.255.0'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;dhcp&gt;</span>
+      <span class="nt">&lt;range</span> <span class="na">start=</span><span class="s">'192.168.122.2'</span> <span class="na">end=</span><span class="s">'192.168.122.254'</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/dhcp&gt;</span>
+  <span class="nt">&lt;/ip&gt;</span>
+<span class="nt">&lt;/network&gt;</span>
+</code></pre></div></div>
+
+<p>I’m going to change the range to <code class="language-plaintext highlighter-rouge">192.168.100.0/24</code> and the network name to <code class="language-plaintext highlighter-rouge">maikenet</code> since I like it more and tells me on the name what it is. You can remove UUID.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;network&gt;</span>
+  <span class="nt">&lt;name&gt;</span>maikenet<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;forward</span> <span class="na">mode=</span><span class="s">'nat'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;nat&gt;</span>
+      <span class="nt">&lt;port</span> <span class="na">start=</span><span class="s">'1024'</span> <span class="na">end=</span><span class="s">'65535'</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/nat&gt;</span>
+  <span class="nt">&lt;/forward&gt;</span>
+  <span class="nt">&lt;bridge</span> <span class="na">name=</span><span class="s">'virbr0'</span> <span class="na">stp=</span><span class="s">'on'</span> <span class="na">delay=</span><span class="s">'0'</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;mac</span> <span class="na">address=</span><span class="s">'52:54:00:9f:f9:f6'</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;ip</span> <span class="na">address=</span><span class="s">'192.168.100.1'</span> <span class="na">netmask=</span><span class="s">'255.255.255.0'</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;dhcp&gt;</span>
+      <span class="nt">&lt;range</span> <span class="na">start=</span><span class="s">'192.168.100.2'</span> <span class="na">end=</span><span class="s">'192.168.100.254'</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/dhcp&gt;</span>
+  <span class="nt">&lt;/ip&gt;</span>
+<span class="nt">&lt;/network&gt;</span>
+</code></pre></div></div>
+
+<p>Now let’s destroy the network interface and create a new one. Beware if you’re doing these commands while your machines are running and attached to any network you’re destroying, they might need a reboot to recover their IPs once that network is back up.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># To destroy it</span>
+virsh net-destroy default
+
+<span class="c"># We need to undefine it in case something is assigned to it already but also because we're not using it anymore</span>
+virsh net-undefine default
+
+<span class="c"># To recreate it from file</span>
+virsh net-define mynetwork.xml
+
+<span class="c"># Now start it and autostart to ensure it starts with NixOS</span>
+virsh net-start maikenet
+virsh net-autostart maikenet
+
+<span class="c"># Check with an ifconfig</span>
+ifconfig
+<span class="c"># You should see an adapter virbr0 with the right IP</span>
+</code></pre></div></div>
+
+<h1 id="creating-a-cloud-init-enabled-image">Creating a cloud-init enabled image</h1>
+
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">
+    <p><strong>IMPORTANT</strong></p>
+
+    <p>Always download the VM version, not the installer version from https://www.freebsd.org/where/</p>
+  </div></div>
+
+<h2 id="for-a-zfs-vm-image">For a ZFS VM image</h2>
+
+<p>This will create a template on your PC to run cloud-init from the ZFS VM image that uses ZFS filesystem, <strong>the most common case.</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Make a folder for your vms</span>
+<span class="nb">mkdir</span> <span class="nv">$HOME</span>/vms
+<span class="nb">cd</span> <span class="nv">$HOME</span>/vms
+
+<span class="c"># Download standard VM image and unzip it</span>
+wget https://download.freebsd.org/releases/VM-IMAGES/14.3-RELEASE/amd64/Latest/FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz
+
+<span class="c"># Decompress but keeps the original</span>
+xz <span class="nt">-dk</span> FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz
+
+<span class="c"># Make the disk slightly bigger</span>
+<span class="nb">mv </span>FreeBSD-14.3-RELEASE-amd64-zfs.qcow2 freebsd14-cloud-init-zfs.qcow2
+qemu-img resize freebsd14-cloud-init-zfs.qcow2 10G
+
+<span class="c"># Run it with the network to install CloudInit</span>
+virt-install <span class="se">\</span>
+  <span class="nt">--name</span> freebsd-zfs <span class="se">\</span>
+  <span class="nt">--memory</span> 2048 <span class="se">\</span>
+  <span class="nt">--vcpus</span> 2 <span class="se">\</span>
+  <span class="nt">--disk</span> <span class="nv">path</span><span class="o">=</span>freebsd14-cloud-init-zfs.qcow2,format<span class="o">=</span>qcow2,bus<span class="o">=</span>virtio <span class="se">\</span>
+  <span class="nt">--os-variant</span> freebsd14.0 <span class="se">\</span>
+  <span class="nt">--import</span> <span class="se">\</span>
+  <span class="nt">--network</span> <span class="nv">network</span><span class="o">=</span>maikenet,model<span class="o">=</span>virtio <span class="se">\</span>
+  <span class="nt">--graphics</span> spice
+</code></pre></div></div>
+
+<h2 id="now-inside-the-machine">Now inside the machine</h2>
+
+<p>The default root user is passwordless so if you use <code class="language-plaintext highlighter-rouge">root</code> it won’t ask for any password, just log you in.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># OPTIONAL: Keyboard to Spanish, symbols are in different places</span>
+kbdcontrol <span class="nt">-l</span> es
+
+<span class="c"># Now inside the machine prepare it for cloud-init (as root, no pass)</span>
+pkg update
+pkg search cloud-init
+pkg <span class="nb">install</span> <span class="nt">-y</span> WHATEVER_VERSION_YOU_GOT_FROM_SEARCH
+
+<span class="c"># Now enable it</span>
+sysrc <span class="nv">cloudinit_enable</span><span class="o">=</span><span class="s2">"YES"</span>
+poweroff
+
+<span class="c"># On your host system: Back it up</span>
+xz <span class="nt">-k</span> freebsd14-cloud-init-zfs.qcow2
+</code></pre></div></div>
+
+<h1 id="using-your-own-templates-to-launch-custom-made-vms-easily">Using your own templates to launch custom-made VMs easily</h1>
+
+<h2 id="create-a-cloud-init-config">Create a cloud-init config</h2>
+
+<p>The SSH key I have there is the default one I have in SSH part of my home-manager config.</p>
+
+<ol>
+  <li>Create this file as <code class="language-plaintext highlighter-rouge">user-data.yaml</code> on the <code class="language-plaintext highlighter-rouge">$HOME/vms</code> folder as the basic template for all other machines:</li>
+</ol>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#cloud-config</span>
+<span class="na">hostname</span><span class="pi">:</span> <span class="s">freebsd1</span>
+<span class="na">users</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">maikel</span>
+    <span class="na">shell</span><span class="pi">:</span> <span class="s">/usr/local/bin/fish</span>
+    <span class="na">sudo</span><span class="pi">:</span> <span class="s">ALL=(ALL) NOPASSWD:ALL</span>
+    <span class="na">lock_passwd</span><span class="pi">:</span> <span class="kc">false</span>
+    <span class="c1"># Use mkpasswd -m sha-512 to get this</span>
+    <span class="na">passwd</span><span class="pi">:</span> <span class="s2">"</span><span class="s">$6$L80IKTwDwcfp......josH0"</span>
+    <span class="na">ssh_authorized_keys</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">ssh-ed25519 AAAA......ikel.dev</span>
+<span class="na">ssh_pwauth</span><span class="pi">:</span> <span class="s">True</span>
+<span class="na">keyboard</span><span class="pi">:</span>
+  <span class="na">layout</span><span class="pi">:</span> <span class="s">es</span>
+<span class="na">packages</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">fish</span>
+  <span class="pi">-</span> <span class="s">sudo</span>
+  <span class="pi">-</span> <span class="s">mkpasswd</span>
+  <span class="pi">-</span> <span class="s">neovim</span>
+  <span class="pi">-</span> <span class="s">ncdu</span>
+  <span class="pi">-</span> <span class="s">git</span>
+<span class="na">runcmd</span><span class="pi">:</span>
+  <span class="c1"># Enable SSH</span>
+  <span class="pi">-</span> <span class="s">sysrc sshd_enable=YES</span>
+  <span class="pi">-</span> <span class="s">service sshd start</span>
+  <span class="c1"># OPTIONAL: Set Spanish keyboard permanently</span>
+  <span class="pi">-</span> <span class="s">sysrc keymap="es.kbd"</span>
+  <span class="pi">-</span> <span class="s">service syscons restart</span>
+  <span class="c1"># OPTIONAL: set root and maikel shells to fish explicitly</span>
+  <span class="pi">-</span> <span class="s">pw usermod root -s /usr/local/bin/fish</span>
+  <span class="pi">-</span> <span class="s">pw usermod maikel -s /usr/local/bin/fish</span>
+  <span class="c1"># OPTIONAL: Auto resize main partition</span>
+  <span class="pi">-</span> <span class="s">gpart recover vtbd0</span>
+  <span class="pi">-</span> <span class="s">gpart resize -i 4 vtbd0</span>
+  <span class="pi">-</span> <span class="s">zpool online -e zroot /dev/vtbd0p4</span>
+</code></pre></div></div>
+
+<ol>
+  <li>Use this command to create a CD-ROM ISO to launch it from. Assuming you’re in <code class="language-plaintext highlighter-rouge">$HOME/vms</code>:</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cloud-localds seed.iso user-data.yaml
+</code></pre></div></div>
+
+<h2 id="creating-the-final-machine-using-the-zfs-image">Creating the final machine using the ZFS image</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Access the folder of your vms</span>
+<span class="nb">cd</span> <span class="nv">$HOME</span>/vms
+
+<span class="c"># Decompress the fresh cloud-init-enabled version we created before</span>
+xz <span class="nt">-dk</span> freebsd14-cloud-init-zfs.qcow2.xz
+
+<span class="c"># Rename it to something more useful to distinguish it from the template</span>
+<span class="nb">cp </span>freebsd14-cloud-init-zfs.qcow2 freebsd1.qcow2
+
+<span class="c"># Create the seed ISO from user-data.yaml in case you've made any changes</span>
+cloud-localds freebsd1.iso user-data.yaml
+
+<span class="c"># Make the disk bigger here it is set to 20G but you can do whatever size you like</span>
+qemu-img resize freebsd1.qcow2 50G
+
+virt-install <span class="se">\</span>
+  <span class="nt">--name</span> freebsd1 <span class="se">\</span>
+  <span class="nt">--memory</span> 4096 <span class="se">\</span>
+  <span class="nt">--vcpus</span> 4 <span class="se">\</span>
+  <span class="nt">--disk</span> <span class="nv">path</span><span class="o">=</span>freebsd1.qcow2,format<span class="o">=</span>qcow2,bus<span class="o">=</span>virtio <span class="se">\</span>
+  <span class="nt">--disk</span> <span class="nv">path</span><span class="o">=</span>freebsd1.iso,device<span class="o">=</span>cdrom <span class="se">\</span>
+  <span class="nt">--os-variant</span> freebsd14.0 <span class="se">\</span>
+  <span class="nt">--import</span> <span class="se">\</span>
+  <span class="nt">--network</span> <span class="nv">network</span><span class="o">=</span>maikenet,model<span class="o">=</span>virtio <span class="se">\</span>
+  <span class="nt">--graphics</span> spice <span class="se">\</span>
+  <span class="nt">--noautoconsole</span>
+</code></pre></div></div>
+
+<p>And that’s it, your system should be up and running ready to be used. Because you enabled NSS and added your default SSH key (default in <code class="language-plaintext highlighter-rouge">.ssh/config</code>), you can just log into it with a simple:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh maikel@freebsd1
+</code></pre></div></div>
+
+<p>…once the machine finishes running all of its cloud-init script.</p>
+
+<p><img src="/assets/images/2025/09/image-4.png" alt="Image" /></p>
+
+<h1 id="extra-steps-for-your-own-sanity">Extra steps for your own sanity</h1>
+
+<h2 id="resizing-the-partition-to-use-all-available-space-zfs">Resizing the partition to use all available space (ZFS)</h2>
+
+<p>If you want your system to use all the available space in your qcow2 file after resizing it you’ll need some extra steps. This can all be added on the user-data template though which I did so you don’t need to.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Ensure vtbd0 is the name of it</span>
+gpart show
+
+<span class="c"># Resize partition</span>
+gpart recover vtbd0
+
+<span class="c"># Get the slice or number of partition, in my case is 4</span>
+gpart show
+
+<span class="c"># This is assuming the slice is 4</span>
+gpart resize <span class="nt">-i</span> 4 vtbd0
+
+<span class="c"># Again the end "p4" depends on the slice number</span>
+zpool online <span class="nt">-e</span> zroot /dev/vtbd0p4
+
+<span class="c"># Check with</span>
+zpool list
+</code></pre></div></div>
+
+<p>That’s all your machine is ready to use. If you ever need to change the size of the qcow2 file repeat those steps.</p>
+
+<h2 id="autostart-this-machine-with-nixos">Autostart this machine with NixOS</h2>
+
+<p>Run on the host machine:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>virsh autostart freebsd1
+</code></pre></div></div>
+
+<p>Otherwise to start manually:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>virsh start freebsd1
+</code></pre></div></div>
+
+<h2 id="detach-cloud-init-disk-just-in-case">Detach cloud-init disk just in case</h2>
+
+<p>Normally cloud-init runs only once, but just to be sure on the host machine:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># To find the name of the ISO device, in my case "hda"</span>
+virsh domblklist freebsd1
+
+<span class="c"># To both remove it and ensure it never comes back after reboot</span>
+virsh change-media freebsd1 hda <span class="nt">--eject</span> <span class="nt">--config</span> <span class="nt">--live</span>
+</code></pre></div></div>
+
+<h2 id="cloning-user-data">Cloning user data</h2>
+
+<p>I create this mostly because I was considering the Zerotier one that is far below and realised I can kill two birds with one shot.</p>
+
+<pre><code class="language-fish">function clone_user_data
+  if test (count $argv) -ne 1
+    echo "Usage: clone_user_data &lt;vmname&gt;"
+    return 1
+  end
+
+  set NEWVM $argv[1]
+  set BASE "$HOME/vms/user-data.yaml"
+  set vm_dir $HOME/vms/in_use/$vm
+  mkdir -p $vm_dir
+  set OUT "$vm_dir/$NEWVM-user-data.yaml"
+
+  if not test -f $BASE
+    echo "Error: base file $BASE does not exist"
+    return 1
+  end
+
+  # Replace hostname line
+  sed "s/^hostname:.*/hostname: $NEWVM/" $BASE &gt; $OUT
+  echo "Created config: $OUT"
+end
+</code></pre>
+
+<h2 id="creating-machines-quickly-with-fish-function">Creating machines quickly with Fish function</h2>
+
+<p>At the moment I separate creating the user-data file for that machine from creating it because precisely we might want to change what is installed on the machine. So this is how I normally do it now:</p>
+
+<pre><code class="language-fish"># Assuming decompressed ready cloud image on ~/vms
+# Create a user-data file for that machine
+clone_user_data freebsd4
+
+# Edit it
+vi $HOME/vms/in_use/freebsd4/freebsd4-user-data.yaml
+
+# Create the machine
+create_vm freebsd4
+</code></pre>
+
+<p>Then create the machine:</p>
+
+<pre><code class="language-fish">function create_vm
+  if test (count $argv) -lt 1
+    echo "Usage: createvm &lt;vm-name&gt;"
+    return 1
+  end
+
+  set vm $argv[1]
+  set vm_dir $HOME/vms/in_use/$vm
+  cd $vm_dir
+
+  echo "Copying template to VM disk..."
+  cp $HOME/vms/freebsd14-cloud-init-zfs.qcow2 $vm.qcow2
+
+  echo "Creating seed ISO..."
+  cloud-localds $vm.iso $vm-user-data.yaml
+
+  echo "Resizing disk..."
+  qemu-img resize $vm.qcow2 20G
+
+  echo "Launching VM..."
+  virt-install \
+    --connect qemu:///system \
+    --name $vm \
+    --memory 4096 \
+    --vcpus 4 \
+    --disk path=$vm.qcow2,format=qcow2,bus=virtio \
+    --disk path=$vm.iso,device=cdrom \
+    --os-variant freebsd14.0 \
+    --import \
+    --network network=maikenet,model=virtio \
+    --graphics spice \
+    --noautoconsole
+
+  echo "VM $vm launched."
+end
+</code></pre>
+
+<h2 id="destroying-machines-quickly-with-fish-shell">Destroying machines quickly with Fish shell</h2>
+
+<pre><code class="language-fish">function destroy_vm
+  if test (count $argv) -lt 1
+    echo "Usage: destroyvm &lt;vm-name&gt;"
+    return 1
+  end
+
+  set vm $argv[1]
+  echo "Destroying VM $vm..."
+  virsh destroy $vm
+
+  echo "Undefining VM $vm..."
+  virsh undefine $vm
+
+  set disk ~/vms/in_use/$vm/$vm.qcow2
+  set seed ~/vms/in_use/$vm/$vm.iso
+  set userdata ~/vms/in_use/$vm/$vm-user-data.yaml
+
+  if test -f $disk
+    echo "Deleting disk $disk..."
+    rm -f $disk
+  else
+    echo "Disk $disk not found, skipping."
+  end
+
+  if test -f $seed
+    echo "Deleting seed $seed..."
+    rm -f $seed
+  else
+    echo "Disk $seed not found, skipping."
+  end
+
+  if test -f $userdata
+    echo "Deleting user-data $userdata..."
+    rm -f $userdata
+  else
+    echo "Disk $userdata not found, skipping."
+  end
+
+  rm -rf $HOME/vms/in_use/$vm
+end
+</code></pre>
+
+<h2 id="zerotier-on-creation-with-self-authorisation">Zerotier on creation with self-authorisation</h2>
+
+<p>This is something I’m experimenting with, installing Zerotier and joining a network are easy steps but I want it to self-authorise too. It does works as it currently is but I want the variables to be fed into the cloud config somehow instead of hard-coding the variables.</p>
+
+<p>Then once the machine is up and running you can just and simply run <code class="language-plaintext highlighter-rouge">/root/join-network.sh</code> as root.</p>
+
+<p>I set a few variables to simplify this all, for example I want the fish functions to be in the vm folder as they are all related to this.</p>
+
+<pre><code class="language-fish"># This loads functions from the path in the vms add to config.fish
+set -g fish_function_path $fish_function_path ~/vms/fish_functions
+
+# This sets the default password I want to use for my machines which is later hashed by mkpasswd, can be set from the shell
+set -Ua DEFAULT_VM_PASSWORD whatever_passw_you_want
+</code></pre>
+
+<p>I also did a few more changes here and in the cloning function since now this is my standard user-data.yaml template:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#cloud-config</span>
+<span class="na">hostname</span><span class="pi">:</span> 
+<span class="na">users</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">maikel</span>
+    <span class="na">shell</span><span class="pi">:</span> <span class="s">/usr/local/bin/fish</span>
+    <span class="na">sudo</span><span class="pi">:</span> <span class="s">ALL=(ALL) NOPASSWD:ALL</span>
+    <span class="na">lock_passwd</span><span class="pi">:</span> <span class="kc">false</span>
+    <span class="na">passwd</span><span class="pi">:</span> <span class="s2">"</span><span class="s">"</span>
+    <span class="na">ssh_authorized_keys</span><span class="pi">:</span>
+      <span class="pi">-</span> 
+<span class="na">ssh_pwauth</span><span class="pi">:</span> <span class="s">True</span>
+<span class="na">keyboard</span><span class="pi">:</span>
+  <span class="na">layout</span><span class="pi">:</span> <span class="s">es</span>
+<span class="na">packages</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">fish</span>
+  <span class="pi">-</span> <span class="s">sudo</span>
+  <span class="pi">-</span> <span class="s">mkpasswd</span>
+  <span class="pi">-</span> <span class="s">neovim</span>
+  <span class="pi">-</span> <span class="s">ncdu</span>
+  <span class="pi">-</span> <span class="s">zerotier</span>
+  <span class="pi">-</span> <span class="s">curl</span>
+  <span class="pi">-</span> <span class="s">jq</span>
+<span class="na">write_files</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/root/join-network.sh</span>
+    <span class="na">permissions</span><span class="pi">:</span> <span class="s1">'</span><span class="s">0755'</span>
+    <span class="na">content</span><span class="pi">:</span> <span class="pi">|</span>
+      <span class="s">#!/bin/sh</span>
+      <span class="s">zerotier-cli join "" &amp;&amp; \</span>
+      <span class="s">MEMBER_ID=$(zerotier-cli info | awk '{print $3}') &amp;&amp; \</span>
+      <span class="s">curl -H "Authorization: token " -X POST \</span>
+      <span class="s">"https://api.zerotier.com/api/v1/network//member/$MEMBER_ID" \</span>
+      <span class="s">--data '{"config": {"authorized": true}}'</span>
+<span class="na">runcmd</span><span class="pi">:</span>
+  <span class="c1"># Enable SSH</span>
+  <span class="pi">-</span> <span class="s">sysrc sshd_enable=YES</span>
+  <span class="pi">-</span> <span class="s">service sshd start</span>
+  <span class="c1"># Set Spanish keyboard permanently</span>
+  <span class="pi">-</span> <span class="s">sysrc keymap="es.kbd"</span>
+  <span class="pi">-</span> <span class="s">service syscons restart</span>
+  <span class="c1"># Optional: set root and maikel shells to fish explicitly</span>
+  <span class="pi">-</span> <span class="s">pw usermod root -s /usr/local/bin/fish</span>
+  <span class="pi">-</span> <span class="s">pw usermod maikel -s /usr/local/bin/fish</span>
+  <span class="c1"># Auto resize main partition</span>
+  <span class="pi">-</span> <span class="s">gpart recover vtbd0</span>
+  <span class="pi">-</span> <span class="s">gpart resize -i 4 vtbd0</span>
+  <span class="pi">-</span> <span class="s">zpool online -e zroot /dev/vtbd0p4</span>
+  <span class="c1"># Zerotier joy</span>
+  <span class="pi">-</span> <span class="s">sysrc zerotier_enable="YES"</span>
+  <span class="pi">-</span> <span class="s">service zerotier start</span>
+</code></pre></div></div>
+
+<p>Applying the ZT_TOKEN and ZT_NW with a Fish-shell function <code class="language-plaintext highlighter-rouge">clone_user_data VM_NAME</code>:</p>
+
+<pre><code class="language-fish">function clone_user_data
+  if test (count $argv) -ne 1
+    echo "Usage: clone_user_data &lt;vmname&gt;"
+    return 1
+  end
+
+  set NEWVM $argv[1]
+  set BASE "$HOME/vms/user-data.yaml"
+  set VM_DIR "$HOME/vms/in_use/$NEWVM"
+  mkdir -p "$VM_DIR"
+  echo "Created directory $VM_DIR"
+
+  set OUT "$VM_DIR/$NEWVM-user-data.yaml"
+
+  if not test -f $BASE
+    echo "Error: base file $BASE does not exist"
+    return 1
+  end
+
+  if test -z "$ZT_TOKEN"
+    echo "Error: ZT_TOKEN environment variable not set"
+    return 1
+  end
+
+  if test -z "$ZT_NWID"
+    echo "Error: ZT_NWID environment variable not set"
+    return 1
+  end
+
+  if test -z "$DEFAULT_VM_PASSWORD"
+    echo "Error: DEFAULT_VM_PASSWORD environment variable not set"
+    return 1
+  end
+
+  # Generate hashed password
+  set PASSWD (mkpasswd -m sha-512 $DEFAULT_VM_PASSWORD)
+
+  # Extract default identity file from ssh config (already a .pub in your setup)
+  set PUBKEYFILE (grep -m1 -i 'IdentityFile' ~/.ssh/config | awk '{print $2}' | sed "s|~|$HOME|")
+
+  if test -z "$PUBKEYFILE"
+    echo "Error: could not find IdentityFile in ~/.ssh/config"
+    return 1
+  end
+
+  if not test -f $PUBKEYFILE
+    echo "Error: public key $PUBKEYFILE not found"
+    return 1
+  end
+
+  set PUBKEY (cat $PUBKEYFILE)
+
+  sed \
+    -e "s||$NEWVM|g" \
+    -e "s||$ZT_NWID|g" \
+    -e "s||$ZT_TOKEN|g" \
+    -e "s||$PASSWD|g" \
+    -e "s||$PUBKEY|" \
+    $BASE &gt;$OUT
+
+  if test $status -ne 0
+    echo "Error: failed to generate $OUT"
+    return 1
+  end
+
+  echo "Created config: $OUT"
+end
+</code></pre>
+
+<h2 id="installing-a-desktop-environment">Installing a desktop environment</h2>
+
+<p>I use KDE, it really just needs to read the handbook and follow it step by step. I even created its own <code class="language-plaintext highlighter-rouge">desktop-user-data.yaml</code> file for this one in case I ever need the desktop.</p>
+
+<p>The yaml file for cloudinit:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#cloud-config</span>
+<span class="na">hostname</span><span class="pi">:</span> <span class="s">desktop</span>
+<span class="na">users</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">maikel</span>
+    <span class="na">shell</span><span class="pi">:</span> <span class="s">/usr/local/bin/fish</span>
+    <span class="na">sudo</span><span class="pi">:</span> <span class="s">ALL=(ALL) NOPASSWD:ALL</span>
+    <span class="na">lock_passwd</span><span class="pi">:</span> <span class="kc">false</span>
+    <span class="na">passwd</span><span class="pi">:</span> <span class="s2">"</span><span class="s">$6$L80IKTw............osH0"</span>
+    <span class="na">ssh_authorized_keys</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">ssh-ed25519 ....... maikel.dev</span>
+<span class="na">ssh_pwauth</span><span class="pi">:</span> <span class="s">True</span>
+<span class="na">keyboard</span><span class="pi">:</span>
+  <span class="na">layout</span><span class="pi">:</span> <span class="s">es</span>
+<span class="na">packages</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">fish</span>
+  <span class="pi">-</span> <span class="s">sudo</span>
+  <span class="pi">-</span> <span class="s">mkpasswd</span>
+  <span class="pi">-</span> <span class="s">neovim</span>
+  <span class="pi">-</span> <span class="s">ncdu</span>
+  <span class="pi">-</span> <span class="s">xorg</span>
+  <span class="pi">-</span> <span class="s">kde</span>
+  <span class="pi">-</span> <span class="s">sddm</span>
+<span class="na">runcmd</span><span class="pi">:</span>
+  <span class="c1"># Enable SSH</span>
+  <span class="pi">-</span> <span class="s">sysrc sshd_enable=YES</span>
+  <span class="pi">-</span> <span class="s">service sshd start</span>
+  <span class="c1"># Set Spanish keyboard permanently</span>
+  <span class="pi">-</span> <span class="s">sysrc keymap="es.kbd"</span>
+  <span class="pi">-</span> <span class="s">service syscons restart</span>
+  <span class="c1"># Optional: set root and maikel shells to fish explicitly</span>
+  <span class="pi">-</span> <span class="s">pw usermod root -s /usr/local/bin/fish</span>
+  <span class="pi">-</span> <span class="s">pw usermod maikel -s /usr/local/bin/fish</span>
+  <span class="c1"># Auto resize main partition</span>
+  <span class="pi">-</span> <span class="s">gpart recover vtbd0</span>
+  <span class="pi">-</span> <span class="s">gpart resize -i 4 vtbd0</span>
+  <span class="pi">-</span> <span class="s">zpool online -e zroot /dev/vtbd0p4</span>
+  <span class="c1"># Add KDE</span>
+  <span class="pi">-</span> <span class="s">pw groupmod video -m maikel</span>
+  <span class="pi">-</span> <span class="s">sysrc dbus_enable="YES"</span>
+  <span class="pi">-</span> <span class="s">service dbus start</span>
+  <span class="pi">-</span> <span class="s">sysctl net.local.stream.recvspace=65536</span>
+  <span class="pi">-</span> <span class="s">sysctl net.local.stream.sendspace=65536</span>
+  <span class="pi">-</span> <span class="s">sysctl -f /etc/sysctl.conf</span>
+  <span class="pi">-</span> <span class="s">sysrc sddm_enable="YES"</span>
+  <span class="pi">-</span> <span class="s">sysrc sddm_lang="es_ES"</span>
+  <span class="pi">-</span> <span class="s">setxkbmap -layout es</span>
+  <span class="pi">-</span> <span class="s">service ssdm start</span>
+</code></pre></div></div>
+
+<p>The machine has a few differences, I assigned more total system memory (8GB) and hiked the RAM assigned to the video card too. My mouse is a USB one so only works with that line in input. If yours isn’t USB delete that line.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>virt-install <span class="se">\</span>
+  <span class="nt">--connect</span> qemu:///system <span class="se">\</span>
+  <span class="nt">--name</span> desktop <span class="se">\</span>
+  <span class="nt">--memory</span> 8192 <span class="se">\</span>
+  <span class="nt">--vcpus</span> 4 <span class="se">\</span>
+  <span class="nt">--disk</span> <span class="nv">path</span><span class="o">=</span>desktop.qcow2,format<span class="o">=</span>qcow2,bus<span class="o">=</span>virtio <span class="se">\</span>
+  <span class="nt">--disk</span> <span class="nv">path</span><span class="o">=</span>desktop.iso,device<span class="o">=</span>cdrom <span class="se">\</span>
+  <span class="nt">--os-variant</span> freebsd14.0 <span class="se">\</span>
+  <span class="nt">--import</span> <span class="se">\</span>
+  <span class="nt">--video</span> qxl,ram<span class="o">=</span>524288,vram<span class="o">=</span>262144,vgamem<span class="o">=</span>262144 <span class="se">\</span>
+  <span class="nt">--network</span> <span class="nv">network</span><span class="o">=</span>maikenet,model<span class="o">=</span>virtio,mac<span class="o">=</span>52:54:00:6f:3c:58 <span class="se">\</span>
+  <span class="nt">--input</span> <span class="nb">type</span><span class="o">=</span>mouse,bus<span class="o">=</span>usb <span class="se">\</span>
+  <span class="nt">--graphics</span> spice <span class="se">\</span>
+  <span class="nt">--noautoconsole</span>
+</code></pre></div></div>
+
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">
+    <p>The Fish function <strong>create_vm</strong> won’t work for this because the definition is for a non-GUI machine. But you can use the Fish function <strong>clone_user_data</strong> to get the MAC and fix the IP. Since this was a one off, I didn’t care about automating it. As soon as I discovered the <strong>hours-long</strong> nightmare that is <a href="https://freebsdfoundation.org/resource/how-to-use-vs-code-on-freebsd/">installing VSCode in FreeBSD</a> I realised I’m only using it for servers and appliances.</p>
+  </div></div>
+
+<h2 id="cleaning-up">Cleaning up</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># See the machines</span>
+<span class="nb">sudo </span>virsh list <span class="nt">--all</span>
+
+<span class="c"># The first stops immediately the machine</span>
+<span class="nb">sudo </span>virsh destroy freebsd14
+
+<span class="c"># This second removes it from the pool of VMs of libvirtd</span>
+<span class="nb">sudo </span>virsh undefine freebsd14
+
+<span class="c"># Delete any pre-made seed just in case</span>
+<span class="nb">rm</span> <span class="nt">-rf</span> seed.iso
+</code></pre></div></div>
+
+<h1 id="extra-repo-with-all-this">Extra: Repo with all this</h1>
+
+<p>I made a repo with all these commands including a pre-made ZFS-ready FreeBSD 14.3 image.</p>
+
+<p>The URL is <a href="https://github.com/maikelthedev/libvirtd_automation">https://github.com/maikelthedev/libvirtd_automation</a></p>
+
+<h1 id="some-oddities">Some oddities</h1>
+
+<p>These are some painful parts from the process.</p>
+
+<h2 id="the-command-virt-install-and-">The command <code class="language-plaintext highlighter-rouge">virt-install</code> and “~”</h2>
+
+<p>I don’t know why the path can’t interpret “~” hence why I did it all from the <code class="language-plaintext highlighter-rouge">$HOME/vms</code> folder. In this version I changed “~” to <code class="language-plaintext highlighter-rouge">$HOME</code> in all scripts for consistency.</p>
+
+<h2 id="run-without-virt-viewer">Run without virt-viewer</h2>
+
+<p>Sometimes you want to install and see nothing, in those case use:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">--graphics</span> spice <span class="se">\</span>
+<span class="nt">--noautoconsole</span>
+</code></pre></div></div>
+
+<p>At the end of the <code class="language-plaintext highlighter-rouge">virt-install</code> command, this runs the system with graphics enable but doesn’t attach any viewer to it.</p>
+
+
+  </div>
+</article>
+
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrapper">
+        <p>&copy; 2026 Maikelology. All rights reserved.</p>
+      </div>
+    </footer>
+    
+    <script>
+      // Add anchor links to all headers
+      document.addEventListener('DOMContentLoaded', function() {
+        const headers = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
+        
+        headers.forEach(function(header) {
+          // Check if anchor link already exists
+          if (header.querySelector('a.anchor')) {
+            return;
+          }
+          
+          const id = header.getAttribute('id');
+          if (!id) return;
+          
+          const anchor = document.createElement('a');
+          anchor.href = '#' + id;
+          anchor.className = 'anchor';
+          anchor.textContent = '#';
+          anchor.setAttribute('aria-label', 'Link to this section');
+          
+          header.insertBefore(anchor, header.firstChild);
+        });
+      });
+    </script>
+  </body>
+</html>
