@@ -1,15 +1,18 @@
-url: "https://maikel.dev" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://maikelthedev.github.io" # the base hostname & protocol for your site
 baseurl: "" # the subpath of your site, e.g. /blog
 title: "Maikelology" # the name of your site, e.g. ACME Corp.
 author: "Maikel Frias Mosquea"
 description: "Ramblings of @maikel@vmst.io"
 
+# GitHub Pages compatible plugins
 plugins:
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-reading-time
   - jekyll-archives
+  # Note: jekyll-paginate-v2 may have issues on GitHub Pages
+  # If pagination doesn't work, consider removing it
   - jekyll-paginate-v2
 
 # Syntax highlighting is built-in with Rouge (no plugin needed)
