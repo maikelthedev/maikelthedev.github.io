@@ -4,7 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <title>A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones - Maikelology</title>
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="preload" href="/assets/css/main.css" as="style">
+    <link rel="stylesheet" href="/assets/css/main.css" media="all">
     <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones | Maikelology</title>
 <meta name="generator" content="Jekyll v4.4.1" />
@@ -13,20 +14,20 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="En este artículo te explico, de forma clara y práctica, qué significa exactamente que A Coruña sea zona tensionada, qué limitaciones introduce y cómo puede afectarte tanto si ya tienes una vivienda alquilada como si planeas ponerla en el mercado." />
 <meta property="og:description" content="En este artículo te explico, de forma clara y práctica, qué significa exactamente que A Coruña sea zona tensionada, qué limitaciones introduce y cómo puede afectarte tanto si ya tienes una vivienda alquilada como si planeas ponerla en el mercado." />
-<link rel="canonical" href="https://blog.maikel.dev/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html" />
-<meta property="og:url" content="https://blog.maikel.dev/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html" />
+<link rel="canonical" href="http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html" />
+<meta property="og:url" content="http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html" />
 <meta property="og:site_name" content="Maikelology" />
-<meta property="og:image" content="https://blog.maikel.dev/assets/images/unsplash-1679432494197.jpg" />
+<meta property="og:image" content="http://localhost:4000/assets/images/unsplash-1679432494197.jpg" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2025-10-21T00:00:00+02:00" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta property="twitter:image" content="https://blog.maikel.dev/assets/images/unsplash-1679432494197.jpg" />
+<meta property="twitter:image" content="http://localhost:4000/assets/images/unsplash-1679432494197.jpg" />
 <meta property="twitter:title" content="A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Maikel Frias Mosquea"},"dateModified":"2025-10-21T00:00:00+02:00","datePublished":"2025-10-21T00:00:00+02:00","description":"En este artículo te explico, de forma clara y práctica, qué significa exactamente que A Coruña sea zona tensionada, qué limitaciones introduce y cómo puede afectarte tanto si ya tienes una vivienda alquilada como si planeas ponerla en el mercado.","headline":"A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones","image":"https://blog.maikel.dev/assets/images/unsplash-1679432494197.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.maikel.dev/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html"},"url":"https://blog.maikel.dev/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Maikel Frias Mosquea"},"dateModified":"2025-10-21T00:00:00+02:00","datePublished":"2025-10-21T00:00:00+02:00","description":"En este artículo te explico, de forma clara y práctica, qué significa exactamente que A Coruña sea zona tensionada, qué limitaciones introduce y cómo puede afectarte tanto si ya tienes una vivienda alquilada como si planeas ponerla en el mercado.","headline":"A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones","image":"http://localhost:4000/assets/images/unsplash-1679432494197.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html"},"url":"http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link type="application/atom+xml" rel="alternate" href="https://blog.maikel.dev/feed.xml" title="Maikelology" />
+    <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Maikelology" />
   </head>
   <body>
     <header class="site-header">
@@ -262,7 +263,8 @@ Un cambio estructural que marcará los próximos años del mercado inmobiliario 
     
     <script>
       // Add anchor links to all headers
-      document.addEventListener('DOMContentLoaded', function() {
+      // Use requestAnimationFrame to ensure layout is stable after CSS loads
+      function initAnchors() {
         const headers = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
         
         headers.forEach(function(header) {
@@ -282,7 +284,20 @@ Un cambio estructural que marcará los próximos años del mercado inmobiliario 
           
           header.insertBefore(anchor, header.firstChild);
         });
-      });
+      }
+      
+      // Wait for DOM and ensure layout is stable
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(initAnchors);
+          });
+        });
+      } else {
+        requestAnimationFrame(function() {
+          requestAnimationFrame(initAnchors);
+        });
+      }
     </script>
   </body>
 </html>

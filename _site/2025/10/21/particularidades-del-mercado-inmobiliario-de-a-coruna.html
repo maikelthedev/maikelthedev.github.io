@@ -4,7 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <title>Particularidades del mercado inmobiliario de A Coruña - Maikelology</title>
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="preload" href="/assets/css/main.css" as="style">
+    <link rel="stylesheet" href="/assets/css/main.css" media="all">
     <!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>Particularidades del mercado inmobiliario de A Coruña | Maikelology</title>
 <meta name="generator" content="Jekyll v4.4.1" />
@@ -13,20 +14,20 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Encontré una tésis de 400 y pico páginas sobre la influencia de Inditext en el mercado inmobiliario de Coruña pero lo mas maravilloso de la tesis no es inditex sino como desgrana en 400 páginas las particularidades de esta ciudad. Aqui un resumen." />
 <meta property="og:description" content="Encontré una tésis de 400 y pico páginas sobre la influencia de Inditext en el mercado inmobiliario de Coruña pero lo mas maravilloso de la tesis no es inditex sino como desgrana en 400 páginas las particularidades de esta ciudad. Aqui un resumen." />
-<link rel="canonical" href="https://blog.maikel.dev/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html" />
-<meta property="og:url" content="https://blog.maikel.dev/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html" />
+<link rel="canonical" href="http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html" />
+<meta property="og:url" content="http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html" />
 <meta property="og:site_name" content="Maikelology" />
-<meta property="og:image" content="https://blog.maikel.dev/assets/images/unsplash-1560253451.jpg" />
+<meta property="og:image" content="http://localhost:4000/assets/images/unsplash-1560253451.jpg" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2025-10-21T00:00:00+02:00" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta property="twitter:image" content="https://blog.maikel.dev/assets/images/unsplash-1560253451.jpg" />
+<meta property="twitter:image" content="http://localhost:4000/assets/images/unsplash-1560253451.jpg" />
 <meta property="twitter:title" content="Particularidades del mercado inmobiliario de A Coruña" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Maikel Frias Mosquea"},"dateModified":"2025-10-21T00:00:00+02:00","datePublished":"2025-10-21T00:00:00+02:00","description":"Encontré una tésis de 400 y pico páginas sobre la influencia de Inditext en el mercado inmobiliario de Coruña pero lo mas maravilloso de la tesis no es inditex sino como desgrana en 400 páginas las particularidades de esta ciudad. Aqui un resumen.","headline":"Particularidades del mercado inmobiliario de A Coruña","image":"https://blog.maikel.dev/assets/images/unsplash-1560253451.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.maikel.dev/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html"},"url":"https://blog.maikel.dev/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Maikel Frias Mosquea"},"dateModified":"2025-10-21T00:00:00+02:00","datePublished":"2025-10-21T00:00:00+02:00","description":"Encontré una tésis de 400 y pico páginas sobre la influencia de Inditext en el mercado inmobiliario de Coruña pero lo mas maravilloso de la tesis no es inditex sino como desgrana en 400 páginas las particularidades de esta ciudad. Aqui un resumen.","headline":"Particularidades del mercado inmobiliario de A Coruña","image":"http://localhost:4000/assets/images/unsplash-1560253451.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html"},"url":"http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link type="application/atom+xml" rel="alternate" href="https://blog.maikel.dev/feed.xml" title="Maikelology" />
+    <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Maikelology" />
   </head>
   <body>
     <header class="site-header">
@@ -151,7 +152,8 @@
     
     <script>
       // Add anchor links to all headers
-      document.addEventListener('DOMContentLoaded', function() {
+      // Use requestAnimationFrame to ensure layout is stable after CSS loads
+      function initAnchors() {
         const headers = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
         
         headers.forEach(function(header) {
@@ -171,7 +173,20 @@
           
           header.insertBefore(anchor, header.firstChild);
         });
-      });
+      }
+      
+      // Wait for DOM and ensure layout is stable
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(initAnchors);
+          });
+        });
+      } else {
+        requestAnimationFrame(function() {
+          requestAnimationFrame(initAnchors);
+        });
+      }
     </script>
   </body>
 </html>
