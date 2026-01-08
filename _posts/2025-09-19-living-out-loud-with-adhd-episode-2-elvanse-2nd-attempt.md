@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Living Out Loud With ADHD \u2013 Episode 2: Elvanse 2nd attempt"
+title: "Living Out Loud With ADHD – Episode 2: Elvanse 2nd attempt"
 date: "2025-09-19"
 excerpt: "My experience with ADHD and what has been working so far ever since starting on medication. This episode is about the usage of Elvanse long-term. "
 image: "/assets/images/unsplash-1675524375084.jpg"

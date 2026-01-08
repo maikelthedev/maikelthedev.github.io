@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Living Out Loud With ADHD \u2013 Episode 1: A very thorough Introduction"
+title: "Living Out Loud With ADHD – Episode 1: A very thorough Introduction"
 date: "2025-08-18"
 excerpt: "My experience with ADHD and what has been working so far ever since starting on medication. "
 image: "/assets/images/unsplash-1542195830.jpg"

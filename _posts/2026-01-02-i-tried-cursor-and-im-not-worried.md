@@ -2,7 +2,7 @@
 layout: post
 title: "I Tried Cursor and I'm Not Worried"
 date: "2026-01-02"
-excerpt: "I tested Cursor, for prototyping ideas to just figure if they are feasible it works, yet for production level it doesn\u2019t. Context is their kryptonite. Our jobs are VERY MUCH safe. "
+excerpt: "I tested Cursor, for prototyping ideas to just figure if they are feasible it works, yet for production level it doesn't. Context is their kryptonite. Our jobs are VERY MUCH safe. "
 image: "/assets/images/unsplash-1571441249554.jpg"
 tags:
   - programming
