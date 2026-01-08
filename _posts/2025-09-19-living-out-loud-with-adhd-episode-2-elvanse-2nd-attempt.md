@@ -1,0 +1,74 @@
+---
+layout: post
+title: "Living Out Loud With ADHD \u2013 Episode 2: Elvanse 2nd attempt"
+date: "2025-09-19"
+excerpt: "My experience with ADHD and what has been working so far ever since starting on medication. This episode is about the usage of Elvanse long-term. "
+image: "/assets/images/unsplash-1675524375084.jpg"
+tags:
+  - ADHD
+featured: true
+---
+
+# Some necesary background
+
+Quick mandatory reminder 👇
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">⚠️</div><div class="kg-callout-text">**This is not medical information, **nor am I a trained physician or any kind of expert in ADHD. I'm just another ADHDer untangling the data I got and detailing my own personal experience and effects (if any) of meds. 
+
+If you think any of this relates to you, don't take it on your own hands, discuss it with your doctor. If any of it particularly helped you or you think I might be on the wrong track feel free to let me know. Interactions are **encouraged**.</div></div>
+Ont the [first episode of these series of post about living with ADHD](/adhd-changes-ch-1-week-34/) I wrote at length of why I didn't like Elvanse. But let me summarise it quickly back here
+
+## The bad stuff
+
+- Task initiation was easy but task maintenance hard. Working was hard with it.
+- Alters my immune system, the main problem is with my hidradenitis (stage 2), it literally gives me cysts on both of my armpits.
+- I sleep very short time so eventually feel too exhausted. Three to four hours only every night.
+- Inconsistent results.
+- Waking up physically exhausted.
+
+## The good stuff
+
+- Emotional regulation is superior than with Medikinet.
+- The first day is always consistently perfect.
+- I get a much more flexible attention span. Instead of being like a laser focus on Medikinet. I can plan things, whereas with Medikinet my plans need to be written down ahead of taking the pill.
+
+## The way I've been taking it
+
+On weekends when we're more social because of the superior emotional regulation specially and because also that's when I do general cleaning of my home and I need to be able to keep a wider attention span. That's when I often have swapped the Medikinet for Elvanse. Medikinet makes me an execution robot with zero creativity. Elvanse makes me **me **minus the internal noise.**Both **get rid of the internal distractions but Elvanse doesn't make it hard to remember a simple to-do list.
+
+# The change
+
+I really really started to dislike the **limitations** of Medikinet in terms of memory loss and memory access. I felt like wearing a strait jacket with it, I get it, if I want to code it works because I can just focus on coding and coding alone, but if that same day after coding, I want **to have a life and **go out with friends I'm very limited and get increasingly **frustrated**. I keep forgetting words, my keys, if I had taken my pills, I get ADHD symptons that I don't have without it. And after its effects more than 8 hours later I can't stop devouring calories. It makes me really hungry.
+
+So I thought deeply, now that I know better about teh behavioral changes that I had to implement, specially for task initiation and task maintenance. Why not give a go back to Elvanse with some important difference: **focus on sleep.**
+
+## The rationale for the experiment
+
+For all the bad I described above one was fixed when I re-learnt how to ensure I get locked in the task I actually wanted and not the first one I was doing (problem I eventually had with both pills not just Elvanse, I call it the Task Lock Awareness and will post more about this on the next episode) and that's a behavioral change, that's part of learning to operate as a neuronormative person.
+<div ><div >💭</div><div >**Task Lock Awareness (TLA)** is my placeholder term for when you get stuck in a task far longer than planned. It’s not distraction—it’s the opposite. You lose awareness of time because the task absorbs you completely.
+
+I think this comes from years of brute-forcing dopamine while unmedicated. Back then, starting anything felt like dragging water from a dry well—it took huge effort. Now, medicated, it’s more like working with a full reservoir. The water’s there, but our habits haven’t adjusted, so we keep over-pumping.
+
+That’s why every task feels “too engaging.” We’re not used to a lighter touch, so we overdo it and get locked in. Hence: **Task Lock Awareness**.
+
+The awareness is also my rudimentary solution to the task lock. But it needs to be maintained on your mind while you do any task to avoid overdoing them. </div></div>
+So that's TLA and I kind of learnt how to fix it. But it's so long to explain it needs its own post.
+
+The other 4 issues I had with Elvanse** **can be fixed if I sleep more. Enter the scene what I've been using for years to sleep relatively consistently before I got my ADHD diagnose: **doxylamine **or **prometazine.**In Spain I use **doxylamine** in the UK **promethazine.**They are both the same thing, first generation antihistaminics that were terrible for allergies but brilliant to help you fall asleep without being as damaging as actual hard-core sleeping pills (e.g: Ambien is dreadful).
+![Image](/assets/images/2025/09/image-2.png)
+Yet I'm not doing this if it isn't worth it. So where do I go? Anecdotal evidence (not scientifical) of other fellow Elvanse users. I literally just searched forums and Reddit on sleeping issues with Elvanse. The most common description being this
+**I slept very poorly the first two weeks, then it got eventually better and I went back to sleeping normally</blockquote>
+I didn't find it once or twice but repeatedly and with multiple people saying it was the same for them to the original poster. So I thought: let's do an experiment under that assumption, take the doxilamine, force sleep for two weeks and see how I get on.
+
+Also, every other day if I feel too energised I go for a 5K run. Today (4th day) I don't feel like it so I'll go tomorrow. I take the doxilamine around 8pm and try to sleep as long as I can.
+
+# The Early Results
+
+I'll complete this post later, since today I can only talk about the first four days but so far it's completely different to the first time I sustained 5 days with it. Day after day after day I get this:
+
+1. Consistent results day after day for the first time ever. Normally even just the second day it feels a lot less effective.
+2. I'm literally working everyday with no issues as far as I keep an awareness of the task lock on minor tasks, and avoid getting sucked into tasks that don't generate an income.
+3. No cysts on armpits, it's not triggering my HS stage 2.
+4. I'm not waking up exhausted.
+5. I get to do stuff the whole day, instead of just the 8 hours I get with Medikinet. I'm back at working also in the evening.
+
+So far that's what I have. More on this soon. Feel free to give any feedback.

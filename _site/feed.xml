@@ -1,0 +1,1090 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-01-08T21:21:37+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Maikelology</title><subtitle>Ramblings of @maikel@vmst.io</subtitle><author><name>Maikel Frias Mosquea</name></author><entry><title type="html">I Tried Cursor and I’m Not Worried</title><link href="http://localhost:4000/2026/01/02/i-tried-cursor-and-im-not-worried.html" rel="alternate" type="text/html" title="I Tried Cursor and I’m Not Worried" /><published>2026-01-02T00:00:00+01:00</published><updated>2026-01-02T00:00:00+01:00</updated><id>http://localhost:4000/2026/01/02/i-tried-cursor-and-im-not-worried</id><content type="html" xml:base="http://localhost:4000/2026/01/02/i-tried-cursor-and-im-not-worried.html"><![CDATA[<p>The image I’ve chosen from Unsplash for this article is no accident at all, keep reading and you’ll figure out why.</p>
+
+<p>I recently survived showing someone <code class="language-plaintext highlighter-rouge">sparkr_private</code>, a repo containing a prototype version of <a href="https://codeberg.org/maikelthedev/sparkr">Sparkr</a> I built in React Native within a week. The goal wasn’t to build production code. It was to rapidly test <strong>feasibility</strong> of ideas, disposing of concepts quickly just to see what could actually be possible based on ideas in my head.</p>
+
+<p>The result? Shameful code. Heavily written with the help of LLMs (specifically Cursor), it’s 100% slop built on top of slop, designed to answer one question after another:</p>
+
+<ol>
+  <li>Is this possible? Yes.</li>
+  <li>Ok, is this possible? Yes, ok, next.</li>
+  <li>Is this possible? Yes, ok, next.</li>
+  <li>Is this possible? No? Ohhh, what if I do it this way? Yes, ok next.</li>
+</ol>
+
+<p>Rinse and repeat until I had all my questions answered.</p>
+
+<p>The code <strong>individually</strong> worked, but integrated would probably make any mobile phone explode. There were no test suites, just monkey trialing after each idea. No integration tests. Once a feature was proved feasible I run the app on my phone, tested it manually, then I read the code to understand how, then I moved onto checking how the next one could be done. I guarantee you most new ideas broke the previous ones. I’m still debating with myself whether to make that code public.</p>
+
+<p>But here’s the thing: it worked for its purpose. I learned that NIP-17 e2ee direct chat was possible (even if implemented in extremely wasteful and verbose ways) to add to a chatting app easily. I proved uploading facepics using free-to-use <a href="https://github.com/nostr-protocol/nips/blob/master/B7.md">Blossom relays </a>could work. I validated a grid <strong>directory</strong> system based on relays passed via app signature, posted in public relays.</p>
+
+<p>From there onwards, I had all I needed to know it was feasible.</p>
+
+<h2 id="the-only-valid-use-case">The Only Valid Use Case</h2>
+
+<p>After this experiment, I’ve found the only valid use case for LLMs in software development: testing feasibility of random ideas on disposable code to motivate yourself enough to code them yourself.</p>
+
+<p><strong>Once you’ve seen it, you want to make it real</strong>. You’re no longer working with an idea in your head. You answered each and every question you could have about it, to completion, and saw its full potential. It’s a bit like experiencing the joy of seeing your own children grow up and get married, knowing you made it happen, you raised a good kid, before actually deciding to have children. There’s no what if, there’s only a clear path. There’s no scrum or agile ever changing requirements, you’ve gone from specification to final broken thing that kind of works. There’s no ifs, there’s no uncertainty. You’ve seen it, had it in your hands, made of your ideas. Ignore the code, you just wanted to know if it could exist. You know now it can exist. It is <strong>a certainty</strong>.</p>
+
+<p>Or, put another way: helping you gather answers to all the burning questions you might have on a software project before you write the first line of actual decent code.</p>
+
+<p>This is genuinely useful. When you’re exploring a new domain, trying to understand if something is technically possible, or rapidly prototyping to validate concepts, discard what you figure doesn’t work and move onto quicker into alternative options.</p>
+
+<p>But that’s where it ends.</p>
+
+<h2 id="where-llms-fail-catastrophically">Where LLMs Fail Catastrophically</h2>
+
+<p>If you’re thinking about using LLMs for actual software development, here’s where they IMHO fall apart:</p>
+
+<h3 id="1-elegance">1. Elegance</h3>
+
+<p>LLMs don’t understand elegance. They don’t grasp clean architecture, beautiful abstractions, or thoughtful design patterns. They’ll give you code that works, but it’s the software equivalent of a functional but ugly building. It stands, but you wouldn’t want to live in it. Stupid ridiculous thing never had to pass an exam on algorithms, data structure or Big O notation, <a href="https://www.open.ac.uk/courses/modules/m269/"><strong>you did.</strong></a></p>
+
+<p>They’ll write stuff like this 👇</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">doStuff</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">a</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">a</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if </span><span class="p">(</span><span class="nx">a</span> <span class="o">!==</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if </span><span class="p">(</span><span class="nx">b</span> <span class="o">==</span> <span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if </span><span class="p">(</span><span class="nx">c</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">doing stuff</span><span class="dl">"</span><span class="p">);</span>
+            <span class="k">for </span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">c</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+              <span class="nf">setTimeout</span><span class="p">(</span><span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
+              <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>There are some basic principles of software development that they simply ignore:</p>
+
+<ul>
+  <li>KISS, they write incredibly long lines of code with no specialisation or compartimentalisation in smaller functions, it’s untestable due to how long and how many variables it depends on .</li>
+  <li>DRY, they write the same lines across entire codebases again and again.</li>
+  <li>….you can find the whole damn list here in Wikipedia. No one who’s studied software engineering would be unaware of the existence of those and many other rules.</li>
+</ul>
+
+<p>Anyone who’s coded for a couple of years can easily identify code written by a LLM compared to code written by a human.</p>
+
+<h3 id="2-refactoring-and-global-view">2. Refactoring and Global View</h3>
+
+<p>Ask an LLM to refactor code, and you’ll get a mess. They don’t understand the subtle relationships between components, the reasons behind certain design decisions, or how to improve code while maintaining its integrity. They’ll <strong>change things that shouldn’t be changed</strong> and <strong>leave problems that should be fixed.</strong></p>
+
+<p>They’re terrible at handling project specific requirements, domain knowledge, or nuanced business logic. They’ll give you generic solutions that don’t quite fit your actual needs. The devil is in the details, and LLMs are detail blind because they can’t see things <strong>globally</strong>. Why? Context. Remember, they aren’t human.</p>
+
+<p>I’ll talk more about this context thing later, but this is what makes them behave like elderly people with 👇 and the main reason I’ll never fear them.
+<img src="https://images.unsplash.com/photo-1619963030941-69eb5b7ef496?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wxMTc3M3wwfDF8c2VhcmNofDEzfHxhbHpoZWltZXJ8ZW58MHx8fHwxNzY3MzkxNTMzfDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=2000" alt="white and yellow letter t" /></p>
+<h3 id="3-testing">3. Testing</h3>
+
+<p>Tests written by LLMs are <strong>awful</strong>. They test the wrong things, is not that they miss edge cases, but that they implementation details rather than behavior. Good testing requires understanding the system, its requirements, and potential failure modes, all things LLMs struggle with because of <strong>a lack of a global view.</strong> Context, my friend, that’s why you’ll always have a job.</p>
+
+<h3 id="4-anything-involving-refinement">4. Anything Involving Refinement</h3>
+
+<p>LLMs are one-shot generators. They don’t iterate well. They don’t learn from feedback in a meaningful way. Real software development is iterative refinement, taking something that works and making it better, cleaner, more maintainable. LLMs can’t do this. You can tell them to rewrite the same function ten times and I gurantee you by the fourth time you’ll get again the first version. Again, why? Repeat after me: <strong>context.</strong></p>
+
+<h3 id="5-language-support-beyond-python-and-javascript">5. Language Support Beyond Python and JavaScript</h3>
+
+<p>LLMs fail catastrophically at any language that’s not Python or JavaScript. In Elixir, for example, they even make up non-existent functions of core modules. They’ll confidently suggest core-language functions that don’t exist, use incorrect syntax, and provide solutions that simply won’t compile or run. Let alone they are <strong>dated by design</strong>. Why do you think their best language for any of them to prototype with is JavaScript?</p>
+
+<h2 id="the-junior-dev-fallacy">The “Junior Dev” Fallacy</h2>
+
+<p>People who defend LLMs as if they were the 2nd cumming (typo intended) of Jesuschrist often say: “It’s like sitting with a junior developer.”
+<strong>No, it’s not.&lt;/blockquote&gt;
+A junior developer **thinks</strong>. They ask questions. They learn. They make mistakes and understand why they made them. They <strong>grow their knowledge</strong>, they refine, they get better. They bring human judgment, <strong>creativity</strong>, and reasoning to the table.</p>
+
+<p>An LLM vomits. It generates text based on patterns it’s seen, without understanding, without reasoning, without the ability to truly learn from <strong>context</strong> in the way a human does.</p>
+
+<p>But here’s the critical difference that makes human coders irreplaceable:
+<strong>context</strong>.&lt;/blockquote&gt;<img src="https://images.unsplash.com/photo-1762894764362-d264b9ffc92a?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wxMTc3M3wwfDF8c2VhcmNofDE0M3x8Y29udGV4dHxlbnwwfHx8fDE3NjczOTIzOTl8MA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=2000" alt="People waiting at a mural-adorned bus stop" /></p>
+<h1 id="what-do-you-even-mean-with-context-maikel">What do you even mean with “context” Maikel?</h1>
+
+<p>A <strong>human</strong> developer can maintain a massively <strong>humongous</strong> context. They can hold in their head the entire architecture of a system, understand how components interact, remember why certain decisions were made months <strong>if not years</strong> ago, see the big picture and the small details simultaneously. They can trace through code mentally, understand the flow of data, see relationships that aren’t explicitly documented, and make connections across the entire codebase. They have <strong>a global vision.</strong></p>
+
+<p>I have ADHD yet unlike most, when I’m unmedicated, my working memory is so large I can hold in my head the entire architecture of an idea for weeks if not months. I can think through complex systems, see how everything connects, and maintain that mental model continuously while I try pseudocode in my head.<strong>An LLM can’t do more than a few prompts without forgetting the entire subject.</strong> Even the most advanced models with massive context windows can’t maintain that kind of persistent, deep understanding. They reset. They forget. They can’t hold onto the architecture the way a human mind can.</p>
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">**Context: T**here's a very tiny window of information you can supply to them, past this window they start from scratch as if an elderly person with dementia.</div></div>
+<p>That’s what **context **means for an LLM. he bigger the context size, the slower they get and they **all **have this limitation. They’ll never get global-type of understanding to any codebase unless it is so tiny it fits entirely in their context, together with the much larger amount of reasoning of what it does, why it does it, etc.</p>
+
+<p>Any LLM, even with the largest context windows available, fails precisely where humans excel. Context windows are limited. They can’t truly “remember” beyond what’s in the current conversation. They can’t maintain the kind of deep, interconnected understanding that a human developer builds over time working with a codebase. They process text, not meaning. They see tokens, not systems.</p>
+
+<p>This is where human coders will always prevail. Real software development isn’t about writing isolated functions. It’s about understanding complex systems, maintaining mental models of how everything fits together, and making decisions that consider the entire context of the project, its history, its future, and its constraints. LLMs can’t do this. They can only work with what’s explicitly in their context window, and even then, they don’t truly understand it.
+<strong>Moral of the story:</strong> you cannot write professional code with an LLM. You can use it to test the feasibility of some ideas and that’s it.&lt;/blockquote&gt;</p>
+<h2 id="the-professionals-approach-that-imho-should-be-the-gold-standard-on-llm-usage">The Professional’s Approach that IMHO should be the gold-standard on LLM usage</h2>
+
+<p>So how do you use LLMs without destroying your career or your codebase?</p>
+
+<p>First, <strong>assume their knowledge is based on inaccuracies</strong>. Don’t ask them if something is feasible. Direct them to code your idea, so you can see with your own eyes if it is and fix what it gets wrong.<strong>Never use LLMs as juries of what is possible</strong>. Never take their opinion. They aren’t people, <strong>they are all snake oil salesmen.</strong> Their job is to sound knowledgeable, not to produce actual knowledge. Do you think the guy at MediaMarkt has any clue of the actual power of an i7-13123 vs an AMD Ryzen 7 Gen 8 v2.5 (I just made up tha last part)? His job is neither to draw sillicon logic in ever shrinking transistor size, with an ever increasing set of instructions to process things ever quicker, using ever more complicated manufacturing processses. Nope, that’s not his job, his job is to sell.</p>
+
+<p>So instead focus on making them do quickly the prototypes of ideas you had in your head. Think of it as a feedback loop overcharged of the ideas that you will ask yourself over a number of weeks, in just days or 24 hours. But ultimately the machine would answer them a lot quicker, just a lot less accurately and more constrained. The prototype you end up with is just one of hundreds of millions of possibilities. <strong>The box cannot think outside the box.</strong> YOU CAN.</p>
+
+<h3 id="1-use-a-different-language-for-prototyping-one-you-dont-care-much-about">1. Use a Different Language for Prototyping one you don’t care much about</h3>
+
+<p>Never use an LLM for the final programming language you’re going to use. Only use it for with shite error-ignoring-prone languages that you don’t get paid professionally to use anymore, like JavaScript (if that’s not your main language).</p>
+
+<p>Why? This ensures your knowledge of your food-on-the-table language remains intact due to constant use <strong>unaided</strong>. It also avoids future <strong>licensing</strong> issues. Most importantly, it makes copy and paste between prototype and final product impossible.</p>
+
+<p>So prototype ideas on a shite language, write them yourself on the proper one.
+<img src="https://images.unsplash.com/photo-1692734207733-a79de344ff3a?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3wxMTc3M3wwfDF8c2VhcmNofDQ2fHxzaGl0fGVufDB8fHx8MTc2NzM5MzU5M3ww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=2000" alt="a red sign with a picture of a cow on it" /></p>
+<h3 id="2-never-use-it-with-your-professional-language-or-the-one-you-feel-passionate-about">2. Never Use It With Your Professional Language or the one you feel passionate about</h3>
+
+<p>If JavaScript is your professional language, use Python for prototyping. The separation is crucial.</p>
+
+<p>Here’s my personal approach: JavaScript was my professional language for quite a while. I can still read it and code in React, Angular, React Native, or NativeScript when designing quick prototypes for Android, Angular was paying the bills. But I haven’t used it professionally in a very long time, nor do I think I will. My main **decent **languages that I get paid sustenance money for are Elixir, which I deeply love, and hopefully soon Kotlin, which finally covers the problems of Java’s obsessive OOP, and finally able to do what React Native had for me: multiplatform, thanks to Kotlin Multiplatform.</p>
+
+<p><strong>I need to know what I’m doing with these languages,</strong> so no LLMs with them. Even better if you can use pseudocode for prototyping. Pseudocode lets you think through the logic and architecture without committing to any specific language, and then you can implement it properly in your professional language yourself. This maintains your skills while still allowing you to rapidly prototype ideas.</p>
+
+<p>We need to compartmentalize: code we write from code LLMs produce. The best way is to use it to understand a concept, read through it, close the fucking tool, and force yourself to write from scratch the code yourself in that different language. As I said before: test the feasibility of ideas, never their actual implementation.</p>
+
+<p>The main reason is the one I mentioned earlier, licensing issues. Imagine you work on a project, you worked aided by some LLM and then months down the line you discover your code comes (inevitably) from copyrighted code with an incompatible viral license to what you’ve “written” for someone else. I’m not talking about some for loop, I’m talking about those <strong>naive</strong> fake-fluencers trying to sell you books, seminars, and other bullshit, about completely code-free coding using agentic-mode only. There’s no way they aren’t ending up with large sections of “their” code being copyright-breaking material with lawyers in-waiting. This is going to probably end up being so big, these kinds of ads will have to be created with different banner “<strong>has your code being used in a large codebase elsewhere, no win, no fee</strong>”.
+<img src="/assets/images/2026-01-image-1.png" alt="Image" /></p>
+<h3 id="3-use-local-models-when-possible">3. Use Local Models When Possible</h3>
+
+<p>Swap for local models with tools like Ollama as soon as you can. But be VERY aware: they are a black box. Every line of code out of an LLM is code stolen from somewhere and that somewhere clearly has a license just as much as anything sucked by a commercial-provider. NEVER copy and paste.</p>
+
+<p>Even with local models, you’re dealing with code that was trained on, <strong>always assume, copyrighted materia</strong>l. The licensing implications are enough to remember you cannot and should not use their code.</p>
+
+<p>The local models have a big advantage: nothing leaves your PC. The code you write, using a commercial LLM, always end up on someone else’s server. Cursor has a setting to keep thinks locally, I assume that setting is misleading.<strong>Never put the code you write for one of your clients on LLMs but specially online ones.</strong> Assume the company behind it is harvesting your prompts for further refinement of the model, and that everything you enter on it, will be used by someone else later. You might be digging your grave.</p>
+
+<h3 id="4-never-invest-in-this-tech">4. Never Invest in This Tech</h3>
+
+<p>Don’t buy GPUs to use them locally, don’t get the greatest 64 GB Apple Sillicon laptop to try different models locally, unless you have the spare funds. Assume it’ll vanish into thin air. Don’t put your value on requiring them. Never develop dependency on them.</p>
+
+<p>Nothing depreciates faster than software, and this is clearly an unsustainable bubble on snakeoil sales-speech software.</p>
+
+<p>You’ve lived through Uber, Airbnb, and other venture capitalistic cunts. You know what OpenAI and others will do. This shit is cheap now, <strong>it’ll cost 10 times more in the near future</strong>. They are burning through VC cash to get you hooked into it. Same as Uber did while destroying their local taxi competitors, and now they are pricier than local taxis. Same as Starbucks does opening multiple stores to asphyxiate the competitors. It’s all the same strategy: cheap now, gets you hooked, become a commodity, then raise the prices.</p>
+
+<p>Don’t build your career or your projects on something that will become unaffordable once they’ve eliminated the competition and you’re locked in.</p>
+
+<p>The LocalLLM market is entirely different, and for certain do investigate on it for fun as much as you’d like as I think this sub-are of LLMs is what will eventually rise victorious.</p>
+
+<h3 id="5-maintain-self-control">5. Maintain Self-Control</h3>
+
+<p>All of this requires self control. How much of an adult are you? How much do you value your employability?</p>
+
+<p>The temptation to use LLMs for “real” work is strong. Short term might feel like you can do one week’s worth of work in an couple of hours. But in the long term, it erodes your skills, creates technical debt, produces code that’s harder to maintain, and makes you dependent on a service that will become eventually either unaffordable to you or unusable due to licensing issues.</p>
+
+<p>Think about this: if running a local LLM that produces anything near the quality of Cursor’s default model costs you a humongous debt in computer components, what incentive do the already existing commercial ones have to NOT eventually raise what they charge for it. They aren’t NGOs, they are all for-profit companies.</p>
+
+<p>It’s a fad, it’ll go and evolve into mini-local LLM models.</p>
+
+<h2 id="conclussion-why-the-rubbish-image-and-why-our-future-is-safe">Conclussion, why the rubbish image and why our Future is Safe</h2>
+
+<p>I don’t think professional software development is going anywhere in favour of machines doing it.</p>
+
+<p>The people who will ignore this advice? Clearly those who don’t work professionally as coders. Professional developers understand that code isn’t just about making something work, it’s about making something work well, maintainably, and elegantly. It’s like raising a kid.</p>
+
+<p>But I don’t think we’re through the worse yet. I think first, will come the commodifying of LLMs, getting as many people hooked as possible, second the hiking of the prices, third, the selling of the convenience of commercial ones compared to local LLMs, then legislation will FINALLY catch up (if ever) and burst the bubble of the commercial ones (that’s where the injury-lawyer industry re-focus will happen into <strong>some major copyright battles</strong>), then some local LLMs will become easier to understand and run, then there’ll be probably more openness (enforced by the law, probably the EU first) about the source of LLMs “knowledge” and finally purpose-built per coding-language and ecosystem language models. Tiny thematicals LLMs capable of requiring less power since they are focused on a single thematic task (like, future Jetpack Compose UI generators).</p>
+
+<p>I’m expecting the bubbele to burst spectacularly and in a similar way the housing crash did since we’re humans, which means, our context window is neither infinite and love repeating our own mistakes. Every bank surely has directly or indirectly invested in this crap, and the moment OpenAI crash we’ll have another Lehman Brothers moment
+**OpenAI is the new Lehman Brothers &lt;/blockquote&gt;
+Now, why that image? Because when I think of Sillicon Valley and Big Tech™️, that’s what comes to my mind: rubbish and people going through it, trying to find value. Yet instead of looking in the recyclable bin, where by definition it is easier to find something that worked in the past and refine it, they look into the non-recyclable one, the one filled with dog poo and cat litter, and try to sell it to us as The Cum of Christ, Microsoft is particularly guilty of this, no matter how many times people shout at them “I don’t want to eat a used diaper” they persistently repeat “now with Premium Poo”👇</p>
+
+<center><strong>No, thank you.</strong></center>
+
+<p>LLMs are a tool. Like any tool, they’re useful for specific tasks and terrible for others. Use them for what they’re good at: rapid feasibility testing on disposable code. Don’t use them for what they’re bad at: actual software development.</p>
+
+<p>Our future is safe because professional software development requires skills that LLMs simply won’t ever have due to their main limitation: context.</p>
+
+<p>The developers who will thrive are the ones who understand this distinction and maintain their skills accordingly. The ones that will have to re-skill themselves into some other industry are those who fell for the vibe-coding fad.</p>
+
+<p>Thanks for coming to my house, tip your waitress. Byyeeeee!</p>
+<figure><iframe src="https://tenor.com/embed/5266957" frameborder="0"></iframe></figure>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="programming" /><category term="tools" /><category term="AI" /><summary type="html"><![CDATA[I tested Cursor, for prototyping ideas to just figure if they are feasible it works, yet for production level it doesn’t. Context is their kryptonite. Our jobs are VERY MUCH safe.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1571441249554.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1571441249554.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Living Out Loud With ADHD – Episode 3: Elvanse long-term</title><link href="http://localhost:4000/2026/01/02/living-out-loud-with-adhd-episode-3-elvanse-long-term.html" rel="alternate" type="text/html" title="Living Out Loud With ADHD – Episode 3: Elvanse long-term" /><published>2026-01-02T00:00:00+01:00</published><updated>2026-01-02T00:00:00+01:00</updated><id>http://localhost:4000/2026/01/02/living-out-loud-with-adhd-episode-3-elvanse-long-term</id><content type="html" xml:base="http://localhost:4000/2026/01/02/living-out-loud-with-adhd-episode-3-elvanse-long-term.html"><![CDATA[<h1 id="some-necesary-background">Some necesary background</h1>
+
+<p>Quick mandatory reminder 👇</p>
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">⚠️</div><div class="kg-callout-text">
+    <p><strong>This is not medical information</strong>, nor am I a trained physician or any kind of expert in ADHD. I’m just another ADHDer untangling the data I got and detailing my own personal experience and effects (if any) of meds.</p>
+
+    <p>If you think any of this relates to you, don’t take it on your own hands, discuss it with your doctor. If any of it particularly helped you or you think I might be on the wrong track feel free to let me know. Interactions are <strong>encouraged</strong>.</p>
+  </div></div>
+
+<h1 id="some-issues-ive-encountered-from-trying-to-operate-in-a-way-i-am-not-used-to">Some issues I’ve encountered from trying to operate in a way I am not used to</h1>
+
+<p>I think the main issue we’ve got to discuss globally is the fact I’ve functioned 39 years more or less succesffully without any medication. That means I have 39 years of workarounds and systems put in place, and behaviours to control what I thought was generic distractability and procrastination. For the most part, my ADHD only bothers me half the day when I’m not medicated, when these ways have exhausted my brain as even as hardcoded as they are, they are still forcing a machine to work in ways it shouldn’t be doing.</p>
+
+<p><strong>The main good thing:</strong> On meds I start lots of things that I normally don’t even have the drive to start, and I would do them to completion, but in the path to that; <strong>the main bad thing:</strong> everything else gets accumulated.</p>
+
+<h2 id="1-priorities-are-hard-to-measure-with-extra-dopamine">1. Priorities are hard to measure with extra dopamine</h2>
+
+<p>Without any extra dopamine all tasks feel as if they have the same weight so when you try to trust your guts and do what “feels right” you’re indeed doing what reason tells you it is right.</p>
+
+<p>With dopamine in abundance, that doesn’t work, what feel rights is actually a scale of different things, the ones you do enjoy have a much bigger weight and the ones that were reasonably important become somehow less so. It’s ridiculously easy to lose track on something you were even slightly passionate about and realise when it is too late in the day.</p>
+
+<p>Deciding on priorities is a lot harder off the meds. I cannot stop a task until I finish it with meds, the problem is that task might not be the most important one for that day.</p>
+
+<h2 id="2-the-sargent️-is-missing-and-lifo-does-not-work">2. The Sargent™️ is missing and LIFO does not work.</h2>
+
+<p>Unmedicated I normally have this inner voice I call “The Sargent” that reminds me what’s the main task I’m doing every few minutes and what other things I have to do, so I don’t lose track of what I’m doing with some distraction. That voice is gone now. So what keeps me on track is now passion, which is easy to let myself get carried away with.</p>
+
+<p>So my days require a lot more planning because whatever I’m doing I’m going to lose track of any other thing I had to do that day unless I keep checking.</p>
+
+<p>Normally, unmedicated LIFO (last-in, first-out) works, I can be doing a main task and distractions come in that are necessary to remove to carry on with main task. This stack scheduling does not work at all medicated. The stack just keeps getting bigger because I keep forgetting the main task and getting carried away. So the only thing that works for me is to outsource The Sargent.</p>
+
+<p>I have a humongous Fish shell script that prints a banner with the main task, duration, when I stated and whenever I get distracted, I run another command from that script file to record the distraction. The whole system is markdown based and kept in my obsidian vault, except the Fish shell file.
+<img src="/assets/images/2026-01-image-2.png" alt="Image" />
+So today for that we get this, so far:
+<img src="/assets/images/2026-01-image-3.png" alt="Image" />
+Without this artificial version of The Sargent, I wouldn’t get anything done at all. So I’m introducing automation left and right to avoid making decisions the whole day and wasting hours on analysis paralysis.</p>
+
+<p>I’m also going to rewrite this tool to remind me every 5 minutes of the task I’m doing instead, I just need to figure how to disable all other desktop notifications in the process.</p>
+<details>
+  <summary>Update on 7th of January of 2026</summary>
+
+  <p>I made my script show this in the middle of the screen using Zenity every five minutes. I think as it is it could be useful to other people so <a href="https://gist.github.com/maikelthedev/9695bcec08f85e36a613c7bcbdc3cd09#file-add-distraction-fish-L691">here it is.</a></p>
+
+  <h3 id="how-it-works">How it works</h3>
+
+  <ol>
+    <li>
+      <p>My daily journals in Obsidian have a section called “What I do want from today” in there every day I write the main tasks I need to get done.</p>
+    </li>
+    <li>
+      <p>In hyprland if I click Win+I it inserts a distraction, by asking me what is distracting me using Zenity for GUI creation from Fish shell.</p>
+    </li>
+    <li>
+      <p>If none of the tasks are currently active, it’ll ask me which one is the main one I’ve been distracted from, once clicked, it’ll mark when I started it.</p>
+    </li>
+    <li>
+      <p>Every five minutes that box below will show on the screen, you can clearly change this, but 5 minutes is enough for me, i can get rid of it with a quick enter key press, no mouse needed. YES, I WANT IT AS INTRUSIVE as I normally am off meds, that’s how bad it gets on meds for me. I want it to mimic the behaviour of my internal scheduler.</p>
+    </li>
+    <li>
+      <p>It creates urgency on the main task.</p>
+    </li>
+    <li>
+      <p>I can move onto a new task by the shortcut Win+Ctrl+I, that runs “new-task” and writes on Obsidian the time it took to complete the previous one. If you have the right skin in Obsidian it’ll change “[/]” for “[x]” and you’ll notice it looks differnet, not all themes of Obsidian show “[/]” different to “[x]”. The “[/]” exists to mark when a tasks is ongoing (not completed, but started). It’ll also write there when I finished and how long it took.</p>
+    </li>
+  </ol>
+
+  <p>It is incomplete but so far useful. Of course you can make the keys be whatever you want or use none and just call it from the terminal. The keys are not defined anywhere, they are just key bindings in my hyprland config to commands of the script.</p>
+
+</details>
+
+<p><img src="/assets/images/2026-01-image-7.png" alt="Image" /></p>
+<h2 id="4-tyrosine-matters">4. Tyrosine matters</h2>
+
+<p>This is plain simple, less than 1 gram of tyrosine supplementation per day and the effects of Elvanse (Medikinet too) were jerky or erratic. Get the gram of tyrosine (at least first thing together with the Elvanse) and the effect just maintains the whole day.</p>
+
+<p>So now I’m force to supplement myself with tyrosine. At least is cheap.</p>
+
+<h2 id="5-sleeping-is-better-but-more-rigid-in-some-ways-and-flexible-in-others">5. Sleeping is better but more rigid in some ways and flexible in others</h2>
+
+<p>I’m slowly realising I can sleep anytime, at any moment when I want to do so, but under some rules. Being able to put the mind in blank is the main rule, which I can do under the effect of the meds. Once the effect starts to fade it becomes increasingly harder.</p>
+
+<p>It doesn’t matter much when I wake up, what I’m realising matters <strong>the most</strong> is that I stay consistent in the time I take the pill. I can take it at 7am every day and still go back to sleep. If I don’t, and I take it whenever I wake up and that time is noon, I’m going to struggle to go to sleep early that day, and then we enter a vicious circle of taking the pill each day later and going to sleep later. So taking the medication at the exact same time every day is crucial, more so than waking up every day at the same hour.</p>
+
+<p>So now I have the pill prepared with a lot of water by the bed with the tyrosine.</p>
+
+<h2 id="6-discovering-im-a-workaholic-and-how-this-is-negative">6. Discovering I’m a workaholic and how this is negative</h2>
+
+<p>I’ve got lots of drive but in too many directions which generates procrastination by analysis paralysis. I want to:</p>
+
+<ul>
+  <li>go to the gym</li>
+  <li>lose fat (not weight)</li>
+  <li>have a sleep schedule</li>
+  <li>work</li>
+  <li>study something new</li>
+  <li>learn Kotlin</li>
+  <li>code Sparkr</li>
+</ul>
+
+<p>Each one of those have sub-tasks, and trying to do them without a system to set priorities nor The Sargent™️ is close to impossible. I end up picking up one and sticking to it most of the day completely forgetting of the existence of the other ones.</p>
+
+<h2 id="7-the-rulebook-changes-in-winter-with-less-sun">7. The rulebook changes in winter with less sun</h2>
+
+<p>A seasonal-affective disorder (SAD) light is not optional. It’s mandatory if I want to work the whole day with the big PC. I might feel i have enough energy but nope, if I don’t keep it on most of the day (it’s a small one) then I’m going to feel tired at lot earlier. At least during winter or while living in a dark place, which I am, at the moment.</p>
+
+<h2 id="8-task-lock-awareness-or-excessive-drive-actually-has-a-name">8. Task lock awareness or excessive drive actually has a name</h2>
+
+<p>This is connected with number 1 and number 3 and it’s part of the <a href="https://en.wikipedia.org/wiki/Default_mode_network">default-mode network</a>. That’s an area of the brain ADHDers have overdeveloped, and is in charge among many other things of the voice (or voices) we hear on our minds while we think.</p>
+
+<p>That voice is my scheduler, with it going quiet or having zero independence, I lose the ability to realise I’ve been hours on the same task. It’s also the reason I can’t stand methylphenidate since it makes that voice completely silent while lisdexamphetamine give me more flexibility with it. At the same time, I feel like I’m so used to having “The Sargent” that internally I keep fighting the effects of the pill and if it weren’t for the total emotional regulation I would rather never take these meds.</p>
+
+<h2 id="9-the-role-of-the-time-the-pill-is-taken-and-how-your-reward-system-is-different">9. The role of the time the pill is taken and how your reward system is different</h2>
+
+<p>Going to the gym is a nightmare on Elvanse because it makes me sweat thrice as much and be a lot thirstier. Unfortunately taking it after the gym is impossible, because without it, I simply never leave the bed. Elvanse sets a new baseline for what “minimum energy levels” is required to jumpstart your day. This is why I rather take it and go back to bed, than wait until I’m fully awake and then take it.</p>
+
+<p>While unmedicated, I just wake up and go to the gym. Every task feels the same ( = nothing) until I am actually finishing the task and THEN I get my dopamine reward. I get the motivation to go to the gym from chasing that high, the one I get when I hit the shower and I know I completed my workout, not from working out itself.</p>
+
+<p>With Elvanse, this reward system is heavily modified. When I’m there I’m only there, I forget to even play music on my headphones. When I lift, I compete strongly with what I normally can lift, a lot more than usual. But on Elvanse working out is no longer something I do chasing the joy of having done it, but something that I do chasing the knowledge that I’m killing records. Which means a lot more ego-lifting than usual and I have to <strong>re-calibrate</strong> constantly to remember I’m on Elvanse and my perception of max weight is not what it’s healthy.</p>
+
+<h2 id="10-bullet-time-is-gone">10. Bullet time is gone</h2>
+
+<p>Remember that bullet time thing you got at the beginning on Elvanse, that’s long gone. Not because suddenly time has slowed down, but because you are so long with it that you stop perceiving the difference. The days I do not take the meds, time feels nearly the same too, you do notice it flies quicker but still doesn’t feel as before the meds.</p>
+
+<h2 id="11-still-got-adhd-issues-just-different-ones">11. Still got ADHD issues just different ones</h2>
+
+<ul>
+  <li>Procrastination is gone, I can do whatever I want at all times, in exchange I have a harder time to figure what I want.</li>
+  <li>I’m getting messier, without a voice in my head reminding me stuff I keep forgetting keys, buying groceries, cleaning the house. This is a common ADHD issue but I don’t have it off meds because I weaponized that internal distracting voice into what I call The Sargent.</li>
+  <li>Setting priorities is very hard.</li>
+  <li>My time perception is awful now.</li>
+  <li>I have working memory issues always on meds, I can’t hold unrelated data in my mind.</li>
+</ul>
+
+<h2 id="12-what-happens-on-rest-days-and-why-i-cant-be-more-than-2-days-without-meds">12. What happens on rest days and why I can’t be more than 2 days without meds.</h2>
+
+<p>The positives:</p>
+
+<ul>
+  <li>I can hold humongous amount of unrelated data</li>
+  <li>The Sargent is back, I don’t need TO-DO lists anymore.</li>
+  <li>Global views on source code are easier to maintain.</li>
+  <li>I can code in my head.</li>
+  <li>I’m a lot more aware of my body and sensations.</li>
+  <li>Going to the gym and enjoying it is a lot easier because I’m used to delayed rewards.</li>
+</ul>
+
+<p>The negatives:</p>
+
+<ul>
+  <li>They all happen in the afternoon</li>
+  <li>I’m exhausted, mentally exhausted.</li>
+  <li>I’m incredibly hungry, and overeat.</li>
+  <li>Noise is a nightmare, especially when there’s too much and is unpredictable. Is like being in twitchy, jumpy mode.</li>
+  <li>I can’t sleep, I have no control of my default-mode network. I can only sleep by physical exhaustion.</li>
+  <li>I’m very irritable with everyone around me and spending humongous amounts of mental energy trying to not get irritated for things that I know shouldn’t bother me that much.</li>
+  <li>I can’t stop yawning.</li>
+  <li>Out-of-nowhere anxiety starts crippling in, a baseline anxiety that I had my entire life off-meds and I don’t have in the slightest on meds. Financial worries are the biggest ones crippling in. While on meds, I can focus on finding solutions instead of constantly enumerating the problems in my head.</li>
+</ul>
+
+<p>The negatives don’t happen the first day off meds, they start to happen toward the ending of the 2nd day meds free, and they always come with an immediate and huge craving for caffeine.</p>
+
+<h2 id="13-i-tried-splitting-my-dosages-and-it-only-gives-me-anxiety">13. I tried splitting my dosages and it only gives me anxiety</h2>
+
+<p>I have all the crazy chemistry doctor material to split my Elvanse dosages in whatever amounts of mutiple of 10 miligrams. Nothing works. It’s got to be 50mg, any less than 50mg and all I have is anxiety. Only 50 reaches the threshold to build up the necessary dopamine to have more positives than negatives. Thirty only works when I’ve woken up really late and take it in the afternoon.</p>
+
+<p>This has made me consider the option of changing into 30mgs and spending half day off meds, the other half with meds so I get to enjoy my favourite “me” format. But it’s jerky. 30mg works when it’s the pills, when it’s the split dosage, it can keep me awake at night. I’m not going to spend 83€ on 30mg pills.</p>
+
+<h2 id="14-bad-trips">14. Bad trips</h2>
+
+<p>Not all days are perfect, some days I have really really bad effect and the memory issues are even worse. Then the inability to stretch my attention span enough to remember what I’m doing starts to make me feel anxious. The worst day this happened, it literally feels like having early-onset Alzheimer. It took me 3 hours to remember the main task I was doing was moving the shoes from mine and Remi’s bedroom into the entrance shoes cabinet. Can you imagine the desparation of seeing the time fly while you spend it trying to remember what were you doing? You don’t have even short-term memory enough to be able to reach a notepad or Obsidian to write it.</p>
+
+<p>It fucks my short-term memory more than my working one. But, as I said, that’s on the odd bad trip day which usually happen before I decide to take a couple of days off the meds. Those days are usually the reason I’d rather stop the meds altogether or even try the 30mg option. But right now what I’m studying the most is the modifying power of naps since that will dictate in the near future my dosage or even choice of med.</p>
+
+<h2 id="15-why-i-find-cycling-meds-on-and-meds-off-is-so-necessary">15. Why I find cycling meds on and meds off is so necessary?</h2>
+
+<p>Memory. Each state of mind (med/unmed) changes the way my memory works and what I have more easily accessible. I tend to forget the cons of being unmedicated after long time medicated, and the same happens the other way. Both are bad. None are optimal. The solution is <strong>definitely</strong> going to be self-directed cognitive-behavioral therapy (CBT) which I’m already doing every time I write this posts.</p>
+
+<p>The key to figure out my strength, weakness and behavioral patterns I need to change is to figure which ones worked and which ones didn’t. I only get that perspective swapping from one to the other. Everything I learn while medicated is stuff I apply later unmedicated with the hope of eventually stopping meds altogether.</p>
+
+<h1 id="what-ive-learnt-so-far-that-will-eventually-help-me-take-no-meds">What I’ve learnt so far that will eventually help me take no meds.</h1>
+
+<h2 id="1-what-i-thought-were-distractions-were-actually-necessary-aids-to-keep-focus">1. What I thought were distractions were actually necessary aids to keep focus</h2>
+
+<p>I do watch a shitload of TV and can’t do anything without music in the background. The gym is the moment of the day where I go through my “discovery weekly” playlist and classify what I like from what I don’t. I’m normally following the rhythm of the music when I do so. I don’t think about it, I just do. It’s <strong>the background task</strong> that keeps me focused. The passive thing you do without paying much attention to it, that somehow keeps the most distracting inner dialogue from focusing on…distracting me.</p>
+
+<p>On medication watching TV bores me, but because it normally does and I can do it without paying much attention to it. Medicated it becomes the main task and is simply not enough interesting.</p>
+
+<h2 id="2-the-sargent️-has-a-cost">2. The Sargent™️ has a cost</h2>
+
+<p>Maintaining the voice that every couple of minutes reminds me of what I have to do, to take the keys when going out, that the house is filthy, that I need to shower, that the fridge is empty…is the main reason my brain gets exhausted. I cannot turn it off unmedicated, too many years of practice.</p>
+
+<p>But I can refrain from feeding it by writing down what I’ve got to do. This sounds easier than it is, because that voice is capable of sorting out priorities and take quick decisions on the fly, while writing down implies doing all that in advance and learning which tasks shouldn’t need remembering.</p>
+
+<h2 id="3-the-humongous-working-memory-or-internal-blackboard-also-has-a-cost">3. The humongous working memory or internal blackboard also has a cost</h2>
+
+<p>I can code in my head, I can explore solutions without typing a single line. Together with the sargent this has another humongous costs and is probably the reason I get mentally exhausted by the afternoon. While I’m fine I don’t even feel any effort in doing this I just keep getting progressively tired until at some point of the day, its gets a life of its own and feels like being enclosed in the Architect room of The Matrix with all the screens as the same volume claiming for your attention.</p>
+
+<p>Again, the solution is of course to use it less, but how do you do that when it feels effortless to use. It’s easy in the case of the sargent, but maintaining humongous abstractions gives you a lot of speed. Is like running a full OS from RAM instead of hard drive.</p>
+
+<p>This is the main thing I need to fix to be pill free. And so far all I’ve got is that I don’t have access to either while medicated. e.g: the abstractions on meds can be just as large but they are thinner, more specific, less global. Without meds I don’t need to re-read this entire article to avoid repeating myself, I would know what I wrote, while medicated I do because each paragraph is a different issue.</p>
+
+<p>And none of that is giving me yet a clue on how to avoid using the full available bandwidth unmedicated. So far all I got is that I can reset it by having a nap.</p>
+
+<h2 id="4-napping-is-the-key-to-everything">4. Napping is the key to everything</h2>
+
+<p>When I was a kid, something that I can only remember on meds because it expands the access and reach of my long-term memory, is that every afternoon I could spend ~4 hours sitting on sofa with nothing but myself, I wasn’t bored, nor I had my eyes closed, even though I surely would have loved to do so and fall sleep and indeed sometimes I did, I was just letting go.</p>
+
+<p>When I reached exhaustion and was overwhelmed by my own brain I just relaxed by becoming an spectator. There was nothing to fear, I’ve always known in the afternoon that I would feel exhausted until I got my second wind. What I didn’t know until the diagnose is that it was untreated ADHD the reason.</p>
+
+<p>So I would just sit comfortably in the nicest sofa around in my home and daydream until I eventually had a short nap or the exhaustion vanished.</p>
+
+<p>The thing is on meds, I can just fall anytime. I’m definitely planning to do so after finishing this awful thing that is already consuming 6 hours of my time.
+<img src="/assets/images/2026-01-image-4.png" alt="Image" />
+But without meds I cannot. So I need to figure how to transfer that skill from medicated to unmedicated. Because if I can have a nap then I can be unmedicated and in the right side of my ADHD symptoms the whole day.</p>
+
+<h2 id="5-memory-might-not-be-erratic-just-different">5. Memory might not be erratic just different</h2>
+
+<p>Remember what I’ve just written, on medication I can remember things from the very-long-ago past better while my short-term and working memory are normally limited, while other days the short-term is kind of frustratingly non-existent.</p>
+
+<p>But what if that’s what’s normal.</p>
+
+<p>I have the theory that I’ve somehow specialised my brain in recycling the space for long-term memory in exchange for a bigger daily working memory. I notice same I can remember with 10x more detail what happened around the city where I live, street names, where to find stuff, etc from the most immediate past, I erase the stuff I don’t care about from the far past very quickly while everybody around me can remember stuff from their childhood that I do not and for them is not normal I cannot, while for me, it is. e.g.: each generation has a cartoon they were addicted to, mine was Dragon Ball. I can’t barely remember anything about it, not even names, while Adrian that is my same generation can tell me entire plotlines. And I do know I was addicted to those cartoons but I know it is information I did not care at all about storing.</p>
+
+<p>I’m yet to meet someone else that can semi-consciously decide what information to delete.</p>
+
+<h2 id="6-emotional-disregulation-is-100-tied-to-mental-exhaustion">6. Emotional disregulation is 100% tied to mental exhaustion</h2>
+
+<p>Once I cannot control my inner monologue, I can’t do anything at will other than rest. So my body becomes this 1-goal zombie that only wants one thing: to rest. And anyone standing in the way between me and rest <strong>they’re going to get run over</strong> and there’s nothing I can do about it other than subtract myself from their presence as I’m a ticking bomb with no control over what they say to be left alone and sleep.</p>
+
+<h2 id="7-decision-fatigue-is-a-big-issue">7. Decision fatigue is a big issue</h2>
+
+<p>The Sargent does spend a humongous amount of energy moving priorities. In this sense there’s a feedback loop between it and the abuse of the bandwidth of my working memory. You can take better decisions when you have as many possibilities displayed in your mind’s eye as possible.</p>
+
+<p>The solution is to delegate. To who? To me in the past. Decide ahead of the future, in small chunks. Avoid my daily routine to have menial decisions. Decisions are decisions big or small, the less you take, the less decision fatigue. If I can get rid off the smaller ones, then I’m further from suffering it.</p>
+
+<p>Also, just doing what’s right instead of what’s optimal helps. What’s optimal never gets an immediate answer, what’s right always does.</p>
+
+<h2 id="8-measure-times">8. Measure times</h2>
+
+<p>I’m making tasks that take really little time a lot longer by overthinking them, I should be measuring how long do they take me and challenge that timing.</p>
+
+<h2 id="9-small-increments">9. Small increments</h2>
+
+<p>Only small changes stick but they have to be so simple and dumbed down that they are effortless. Like, instead of focusing on trying to wake up to go to the gym, focus on not taking the pill at 7am independently of leaving the bed or carrying on sleeping.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>In a nutshell meds-free life is going to be:</p>
+
+<ul>
+  <li>Learning to not abuse and instead protect my bandwidth, by using it as little as possible, and changing ways I do stuff to save it for when I actually need it. e.g.: actually writing to-do lists.</li>
+  <li>avoid analysis paralysis and decision fatigue as anything involving this, will undoubtedly make me think globally.</li>
+  <li>Use meds as a tool to build new systems, then lean on external scaffolding. Don’t rely on internal memory or the “Sargent” voice.</li>
+  <li>Cycle between medicated and unmedicated states to test what works and learn from each mode.</li>
+</ul>
+
+<p>Manage mental energy smarter: naps, pacing, and avoiding afternoon crashes that make meds <strong>be</strong> necessary.</p>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="ADHD" /><summary type="html"><![CDATA[My experience with ADHD and what has been working so far ever since starting on medication. This episode is about the usage of Elvanse long-term.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1675524375084.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1675524375084.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones</title><link href="http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html" rel="alternate" type="text/html" title="A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones" /><published>2025-10-21T00:00:00+02:00</published><updated>2025-10-21T00:00:00+02:00</updated><id>http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones</id><content type="html" xml:base="http://localhost:4000/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html"><![CDATA[<p>A Coruña se ha convertido en la <strong>primera ciudad gallega declarada zona de mercado residencial tensionado</strong> por el <strong>alto precio del alquiler</strong>.
+La medida, enmarcada en la <strong>Ley 12/2023 por el Derecho a la Vivienda</strong>, busca frenar la escalada de precios y mejorar el acceso a la vivienda, especialmente en barrios donde el coste del alquiler se ha disparado por encima del 30 % de los ingresos familiares.</p>
+
+<p>A partir de ahora, <strong>inquilinos y propietarios deberán adaptarse a un nuevo marco legal</strong> que incluye un índice de precios de referencia, límites para grandes tenedores y beneficios fiscales para los pequeños arrendadores que ajusten las rentas.</p>
+<hr />
+
+<h2 id="-el-nuevo-sistema-estatal-de-referencia-de-precios-de-alquiler">📊 El nuevo Sistema Estatal de Referencia de Precios de Alquiler</h2>
+
+<p>Una de las principales herramientas de esta regulación es el <strong>Sistema Estatal de Referencia de Precios de Alquiler de Vivienda</strong>, creado por el Ministerio de Vivienda.
+Esta aplicación oficial permite conocer el <strong>precio de referencia</strong> de una vivienda a partir de datos tributarios sobre arrendamientos habituales, considerando superficie, ubicación, antigüedad, estado o eficiencia energética.
+<strong>💡 Ejemplo: para un piso de 90 m² en A Coruña, el precio de referencia puede variar desde **377 € en Agra do Orzán</strong> hasta <strong>825 € en la plaza de Lugo</strong>.&lt;/blockquote&gt;&lt;hr&gt;</p>
+<h2 id="-cuadro-de-precios-orientativos-por-zonas-vivienda-tipo-de-90-m">📍 Cuadro de precios orientativos por zonas (vivienda tipo de 90 m²)</h2>
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">**ATENCION INQUILINOS**
+En esta web si metes la dirección de tu casa te dice cuanto te pueden cobrar como máximo. [https://serpavi.mivau.gob.es/](https://serpavi.mivau.gob.es/)</div></div>
+<!--kg-card-begin: html-->
+<table>
+<thead>
+<tr>
+<th>Zona / Barrio</th>
+<th>Rango de precio (€)</th>
+<th>€/m² aprox.</th>
+<th>Comentario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**Plaza de Lugo (Centro – Ensanche)**</td>
+<td>616 – 825 €</td>
+<td>6,8 – 9,2 €/m²</td>
+<td>Máxima presión de precios; escasa oferta y alta demanda.</td>
+</tr>
+<tr>
+<td>**Calle San Andrés (Centro histórico)**</td>
+<td>555 – 746 €</td>
+<td>6,2 – 8,3 €/m²</td>
+<td>Zona prime, mucha rotación y presencia de alquiler turístico.</td>
+</tr>
+<tr>
+<td>**Monte Alto – Ronda de Monte Alto**</td>
+<td>432 – 544 €</td>
+<td>4,8 – 6,0 €/m²</td>
+<td>En auge, buena relación precio-ubicación.</td>
+</tr>
+<tr>
+<td>**Riazor – Ciudad Escolar**</td>
+<td>509 – 707 €</td>
+<td>5,6 – 7,8 €/m²</td>
+<td>Alta demanda, especialmente en pisos pequeños y reformados.</td>
+</tr>
+<tr>
+<td>**Os Castros – Castrillón**</td>
+<td>419 – 565 €</td>
+<td>4,6 – 6,3 €/m²</td>
+<td>Alternativa media con precios más contenidos.</td>
+</tr>
+<tr>
+<td>**Agra do Orzán**</td>
+<td>377 – 536 €</td>
+<td>4,2 – 5,9 €/m²</td>
+<td>Zona popular y densamente poblada; índice más bajo del centro urbano.</td>
+</tr>
+<tr>
+<td>**Sagrada Familia**</td>
+<td>319 – 468 €</td>
+<td>3,5 – 5,2 €/m²</td>
+<td>Mercado asequible y tradicional.</td>
+</tr>
+<tr>
+<td>**Novo Mesoiro**</td>
+<td>444 – 528 €</td>
+<td>4,9 – 5,8 €/m²</td>
+<td>Barrio joven y en expansión, con buena oferta familiar.</td>
+</tr>
+</tbody>
+</table>
+<!--kg-card-end: html-->
+<p><strong>📈 El precio medio actual del mercado en A Coruña ronda los **730 €/mes</strong>, según el Instituto Galego de Vivenda e Solo (IGVS).
+En portales como Idealista, <strong>dos tercios de los pisos en oferta superan los 900 €</strong>, lo que confirma la brecha entre la realidad del mercado y el índice estatal.&lt;/blockquote&gt;&lt;hr&gt;</p>
+<h2 id="️-quién-debe-aplicar-el-índice-de-referencia">⚖️ Quién debe aplicar el índice de referencia</h2>
+
+<p>Según la Ley de Vivienda, el <strong>índice no afecta a todos los propietarios por igual</strong>:</p>
+
+<ul>
+  <li>Grandes tenedores (dueños de más de 10 viviendas) deben ajustarse obligatoriamente al índice al firmar un nuevo contrato en una zona tensionada.</li>
+  <li>Pequeños propietarios solo deben hacerlo si:Firman un nuevo contrato en una zona tensionada, y</li>
+  <li>El piso no ha estado alquilado en los últimos 5 años.</li>
+</ul>
+<p>&lt;/li&gt;&lt;/ul&gt;
+El Ministerio no fija un precio único, sino una <strong>horquilla mínima y máxima</strong>, que permite flexibilidad según las características del inmueble (planta, antigüedad, certificación energética, etc.).</p>
+<hr />
+
+<h2 id="-reglas-clave-de-los-contratos-en-zonas-tensionadas">🏠 Reglas clave de los contratos en zonas tensionadas</h2>
+
+<h3 id="1-limitación-de-rentas">1. Limitación de rentas</h3>
+
+<ul>
+  <li>Si el piso ya estaba alquilado en los últimos 5 años, el nuevo contrato no puede superar la renta anterior actualizada con el índice permitido.</li>
+  <li>Si nunca se alquiló o lleva más de 5 años vacío, el precio máximo será el del índice estatal correspondiente.</li>
+</ul>
+
+<h3 id="2-actualización-anual">2. Actualización anual</h3>
+
+<ul>
+  <li>En 2025, la subida máxima será del 3 %.</li>
+  <li>A partir de 2026, se aplicará un nuevo índice (aún pendiente de definir).</li>
+</ul>
+
+<h3 id="3-duración-y-prórrogas">3. Duración y prórrogas</h3>
+
+<ul>
+  <li>Contratos de 5 años (propietarios particulares) o 7 años (personas jurídicas).</li>
+  <li>En zonas tensionadas, el inquilino puede pedir una prórroga adicional de hasta 3 años, salvo causa justificada de necesidad del propietario.</li>
+</ul>
+
+<h3 id="4-registro-autonómico">4. Registro autonómico</h3>
+
+<ul>
+  <li>Todos los contratos deben inscribirse en el registro de arrendamientos de Galicia.</li>
+  <li>La Xunta podrá inspeccionar y sancionar incumplimientos del límite de precios.</li>
+</ul>
+<hr />
+
+<h2 id="-beneficios-fiscales-e-infracciones">💰 Beneficios fiscales e infracciones</h2>
+
+<h3 id="incentivos">Incentivos</h3>
+
+<p>Los propietarios que ajusten el precio a los límites y ofrezcan estabilidad pueden obtener <strong>bonificaciones de hasta el 90 % en el IRPF</strong> por los ingresos del alquiler, siempre que cumplan con los requisitos de duración y referencia del índice.</p>
+
+<h3 id="sanciones">Sanciones</h3>
+
+<p>El incumplimiento de la normativa puede acarrear consecuencias graves:</p>
+
+<ul>
+  <li>Multas de hasta 60.000 € por infracciones muy graves.</li>
+  <li>Nulidad de las cláusulas abusivas.</li>
+  <li>Pérdida de beneficios fiscales aplicados indebidamente.</li>
+  <li>Inspección y sanción administrativa si se detectan rentas fuera del índice.</li>
+</ul>
+<hr />
+
+<h2 id="-impacto-en-el-mercado-de-a-coruña">🔍 Impacto en el mercado de A Coruña</h2>
+
+<p><strong>Efectos esperados:</strong></p>
+
+<ul>
+  <li>Mayor transparencia en los precios.</li>
+  <li>Incentivo para rehabilitar viviendas vacías.</li>
+  <li>Estabilidad para inquilinos y previsibilidad para propietarios.</li>
+</ul>
+
+<p><strong>Riesgos a vigilar:</strong></p>
+
+<ul>
+  <li>Reducción temporal de la oferta.</li>
+  <li>Aumento del alquiler turístico o de habitaciones.</li>
+  <li>Desplazamiento de la demanda a municipios cercanos (Oleiros, Culleredo, Arteixo).</li>
+</ul>
+<hr />
+
+<h2 id="-conclusión">🧭 Conclusión</h2>
+
+<p>Con la declaración de A Coruña como zona tensionada, la ciudad entra en una nueva etapa del mercado del alquiler.
+La regulación busca equilibrio entre protección al inquilino y sostenibilidad para los propietarios, pero el éxito dependerá de su aplicación práctica y del control efectivo por parte de las administraciones.
+<strong>En definitiva: la vivienda en A Coruña no solo se regulará por la oferta y la demanda, sino también por un **marco normativo que fija límites, incentiva la rehabilitación y penaliza los abusos</strong>.
+Un cambio estructural que marcará los próximos años del mercado inmobiliario gallego.&lt;/blockquote&gt;</p>
+<h1 id="mas-información">Mas información</h1>
+
+<ul>
+  <li>Página de la cual copie el contenido porque yo lo valgo y porque nada toca mas los huevos que una página creyendo que puede decidir que yo no pueda copiar y pegar.</li>
+  <li>Precios cogidos de este artículo de La Opinión de Coruña</li>
+  <li>Tambien de esta otra</li>
+</ul>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="real-estate" /><category term="Spain" /><category term="Coruña" /><summary type="html"><![CDATA[En este artículo te explico, de forma clara y práctica, qué significa exactamente que A Coruña sea zona tensionada, qué limitaciones introduce y cómo puede afectarte tanto si ya tienes una vivienda alquilada como si planeas ponerla en el mercado.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1679432494197.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1679432494197.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Loading all environment variables from Bitwarden on terminal launch without noticeable lag</title><link href="http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html" rel="alternate" type="text/html" title="Loading all environment variables from Bitwarden on terminal launch without noticeable lag" /><published>2025-10-21T00:00:00+02:00</published><updated>2025-10-21T00:00:00+02:00</updated><id>http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag</id><content type="html" xml:base="http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html"><![CDATA[<h1 id="the-problem-im-trying-to-solve">The problem I’m trying to solve</h1>
+
+<p>If you use Bitwarden you might have tried using <a href="https://bitwarden.com/help/cli/">Bitwarden CLI</a> which is a nightmare of a tool clearly not fit for purpose.</p>
+
+<p>The main problem with it is that it takes between 1 to 5 seconds for every value you retrieve. The secondary problem is that unlike any other official Bitwarden implementation it is impossible to remain logged in without writing your own scripts to store BW_SESSION (logging with api credentials), pass it between shell sessions or make it universal and still make it so that it tests it works and relogs again if the session token has expired. Considering this again costs between 1 to 5 seconds it is too much time to waste whenever you open a new terminal.</p>
+
+<p>I use <a href="https://fishshell.com/">Fish shell</a>, it’s been my favourite shell for more than ten years, it does stuff that all other shells should be doing now without plugins required. In Fish shell when you make a universal environment variable with <code class="language-plaintext highlighter-rouge">set -U VARIABLE</code>, it doesn’t magically get into the ether or stored in memory, it gets writen on the filesystem on <code class="language-plaintext highlighter-rouge">$HOME/.config/fish/fish_variables</code> and I definitely don’t want that there.</p>
+
+<p>So we have two problems, on one side the official bitwarden cli takes ages with any command, and on the other side I don’t want to keep the session alive by writing the token to a file anywhere on my system.</p>
+
+<h1 id="rbw-entered-the-room">RBW entered the room</h1>
+
+<p>The program <code class="language-plaintext highlighter-rouge">rbw</code> is a command-line tool that does the same job as Bitwarden-CLI albeit very **very **differently. To begin with the commands are not the same, and the way you search for stuff is not the same either. But the most important value of <code class="language-plaintext highlighter-rouge">rbw</code> is that it maintains the connection logged unlike the official CLI tool.</p>
+
+<p>It has a small issue, which is that it doesn’t accept <a href="https://github.com/doy/rbw/issues/292#issuecomment-3425564942">Webauth/FIDO2 as 2FA right now</a> but you can bypass this issue enabling any of the other accepted 2FA ways. In fact I enabled TOTP and it worked beautifully, I was asked for the temporal number combo only once the first time. You can use bitwarden itself as TOTP generator for this since you already have other login mechanisms for it.</p>
+
+<p>That done, one problem was solved, login with <code class="language-plaintext highlighter-rouge">rbw</code> is very easy after installing it, if you use Bitwarden’s official vault, same as I do, do not forget the <code class="language-plaintext highlighter-rouge">register</code> command as explained in the <a href="https://github.com/doy/rbw">rbw repo</a> also if you use Nixos add <code class="language-plaintext highlighter-rouge">pinsentry-tty</code> to your packages, not <code class="language-plaintext highlighter-rouge">pinsentry</code> not any GUI version, you want the one for the terminal . Then do:
+<code># To configure it rbw config set email your@ema.il # Lock timeout in seconds, I prefer 16 hours, covers the time I'm awake rbw config set lock_timeout $(math "60*60*16") # To log in rbw login `&lt;/pre&gt;&lt;p&gt;And that's it. You don't need to do anything else. Any changes in config will ask you to login again the next time you try to get anything out of Bitwarden. With this we've solved the second problem, keeping environment variables anywhere on our system to stay connected.</code></p>
+
+<h1 id="next-issue-rbw-speed-has-limits">Next issue: RBW speed has limits</h1>
+
+<p>So imagine I want to set up a function called <code class="language-plaintext highlighter-rouge">load_bitwarden_vars</code> that I call at the very end of <code class="language-plaintext highlighter-rouge">config.fish</code> so something like this
+<code>function load_bitwarden_vars set -gx GITHUB_CLIENT_ID $(rbw get github -f client_id) set -gx GITHUB_CLIENT_SECRET $(rbw get github -f client_secret) set -gx ZT_TOKEN $(rbw get zerotier -f token) set -gx ZT_NWID $(rbw get zerotier -f network_id) end`&lt;/pre&gt;&lt;p&gt;The `rbw` tool has the advantage over `bw` that it is a lot faster retrieving data, milliseconds, not seconds. But the more calls you do to it during start up of fish shell the slower it gets for you to see the shell prompt whenever you open a window. This is unwieldly. I don't have 4 vars, I have plenty more of them. After filling up my `load_bitwarden_vars.fish` file containing the function this took a very **unacceptable **long time.</code></p>
+
+<p>I came up with the idea of putting each var directly as an alias or abbreviation of the tool it uses them. So, e.g: vault became either
+<code># option 1 abb --add vault "TOKEN=$(rbw get...) vault" # option 2 alias vault "TOKEN=$(rbw get...) /run/current-system/sw/bin/vault"`&lt;/pre&gt;&lt;p&gt;Yet alias has the issue of needing the whole vault path (Nixos) otherwise it becomes an infinite loop and Fish doesn't allow it. And both have the major issue of computing the values when Fish launches so very slow.</code></p>
+
+<h1 id="the-solution">The solution</h1>
+
+<p>One call, just one. It doesn’t matter how big is the item, with just one call it still takes less than a second. So I created an item called <code class="language-plaintext highlighter-rouge">tokens</code> in Bitwarden, I made it as a note, but it really doesn’t matter if you store it as a login, identity or anything else because <code class="language-plaintext highlighter-rouge">rbw</code> doesn’t care of what it is when it retrieves it with <code class="language-plaintext highlighter-rouge">rbw get tokens</code> all that matters is the custom fields I created.</p>
+
+<p>For each one of the variables I want to retrieve I created a hidden text field, with the exact name of the variable. For conveniency I used Bitwarden-desktop for this but you could easily use the CLI tool or <code class="language-plaintext highlighter-rouge">rbw</code> itself to do so. I just had to do too much copy and paste from different places so prefered the visual GUI.
+<img src="/assets/images/2025-10-image-2.png" alt="Image" />
+The elegance of this approach is that I get to name all vars directly on Bitwarden as custom-fields, no sign of them in my fish config files.</p>
+
+<p>So now to get Fish to load them type <code class="language-plaintext highlighter-rouge">funced load_bitwarden_vars</code> and add this to it
+<code>function load_bitwarden_vars set TOKENS $(rbw get tokens --raw) for pair in (printf "%s" "$TOKENS" | jq -r '.fields[] | "\(.name)=\(.value)"') set -l parts (string split -m1 = $pair) set -gx $parts[1] $parts[2] end end `&lt;/pre&gt;&lt;p&gt;Then `funcsave load_bitwarden_vars` to store it in `$HOME/.config/fish/functions/load_bitwarden_vars.fish` and then add at the end of `$HOME/.config/fish/config.fish` the function name `load_bitwarden_vars` to run it after everything else of your config has loaded. In my case being at the end was quite important as I have modifiers for `PATH` in this file.</code></p>
+
+<p>Now to test it fully lock your vault with <code class="language-plaintext highlighter-rouge">rbw lock</code> and close your terminal window. Open a newone and you should see 👇
+<img src="/assets/images/2025-10-image-3.png" alt="Image" />
+Once you log in, close the shell and open it again. This time it doesn’t ask for anything, you’ll notice a very small lag but one you can <strong>comfortably</strong> live with. In fact try to open multiple terminal windows.</p>
+
+<p>You’ve tested both cases, being logged and locked. As you see it works.</p>
+
+<p>**Problem solved! **🥳</p>
+
+<h1 id="how-it-works">How it works</h1>
+
+<p>It’s pretty simple actually, it uses the speed of <code class="language-plaintext highlighter-rouge">rbw</code> for any given item, combined with JQ to set the variables without making them universal so they don’t get written to disk.</p>
+
+<ol>
+  <li>We take the whole output as json of the item tokens from Bitwarden and assign it to the local variable TOKENS</li>
+  <li>With JQ we extract from the fields array on TOKENS each one of the pairs of name and value  custom fields we created. Format them as lines name=value</li>
+  <li>With a for loop we iterate over each one of those lines and assign them to pair</li>
+  <li>The inner content of the loop asigns each part of part to the corresponding local variables name and value.</li>
+  <li>The final line inside the loop assigns the globally exported variable. So that shell window and any subshells get the values.</li>
+</ol>
+
+<p>I’m sure it can be improved and if you come up with ideas feel free to provide me some feedback. I’m not entirely sure of the difference between the types of variables. I mean universal, local and function environment variables are pretty self-explanatory but exported and global are not that clear. The manual says exported makes them available to child processes, but how’s that different from global? Feel free to share some light to me about this in Mastodon.</p>
+
+<h1 id="useful-links">Useful links</h1>
+
+<ul>
+  <li>Fish shell scope in the Fish manual, very important to understand how set -U works.</li>
+  <li>RBW repo page in Github.</li>
+</ul>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="security" /><category term="tools" /><category term="Bitwarden" /><category term="NixOS" /><summary type="html"><![CDATA[Solving the major issue of Bitwarden being incredibly slow to load environment variables by combining rbw, jq and fish shell]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1614064641938.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1614064641938.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Particularidades del mercado inmobiliario de A Coruña</title><link href="http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html" rel="alternate" type="text/html" title="Particularidades del mercado inmobiliario de A Coruña" /><published>2025-10-21T00:00:00+02:00</published><updated>2025-10-21T00:00:00+02:00</updated><id>http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna</id><content type="html" xml:base="http://localhost:4000/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html"><![CDATA[<h3 id="1modelo-urbano-e-histórico">1.<strong>Modelo urbano e histórico</strong></h3>
+
+<ul>
+  <li>Desde los años 80, A Coruña presenta una división socioespacial marcada:Centro histórico y Ensanche → clases medias-altas y procesos de rehabilitación.</li>
+  <li>Barrios periféricos o satélites (Novo Mesoiro, Matogrande, Someso, Los Rosales, Ventorrillo, Adormideras) → creados en los 90-2000 bajo el mandato de Francisco Vázquez, con carencias de servicios, movilidad y cohesión urbana.</li>
+</ul>
+<p>&lt;/li&gt;&lt;li&gt;La expansión periférica se hizo a costa de <strong>abandonar el centro</strong>, lo que facilitó más tarde la <strong>gentrificación</strong> y el <strong>encarecimiento de la vivienda rehabilitada</strong>.&lt;/li&gt;&lt;/ul&gt;&lt;hr&gt;</p>
+<h3 id="2estructura-y-dinámica-del-mercado">2.<strong>Estructura y dinámica del mercado</strong></h3>
+
+<ul>
+  <li>Oferta muy reducida de alquiler y exceso de vivienda vacía o en mal estado.</li>
+  <li>Se mantiene una preferencia cultural por la propiedad, pero la compra se volvió inalcanzable para gran parte de la población desde los 2000.</li>
+  <li>Los precios del alquiler subieron de manera constante entre 2014 y 2022, llegando a ser de los más altos de Galicia, especialmente en barrios céntricos como Papagayo o Monte Alto.</li>
+</ul>
+<hr />
+
+<h3 id="3gentrificación-urbana-y-comercial">3.<strong>Gentrificación urbana y comercial</strong></h3>
+
+<ul>
+  <li>A Coruña ha vivido varias fases de gentrificación:Fase 1 (2000–2008): rehabilitación en Ciudad Vieja y Paseo del Parrote; transformación del mercado de la Plaza de Lugo con la entrada de marcas de lujo e Inditex; encarecimiento del centro.</li>
+  <li>Fase 2 (2008–2015): crisis del ladrillo → precarización, pero también consolidación de la “ciudad creativa”, con llegada de población joven con mayor renta.</li>
+  <li>Fase 3 (2015–actualidad): expansión de la gentrificación hacia Monte Alto, San Agustín y Curros Enríquez, ligada a rehabilitación y turismo urbano.</li>
+</ul>
+<p>&lt;/li&gt;&lt;/ul&gt;&lt;hr&gt;</p>
+<h3 id="4el-efecto-inditex">4.<strong>El “efecto Inditex”</strong></h3>
+
+<ul>
+  <li>Inditex no domina toda la economía urbana, pero tiene efectos indirectos claros:Simbolismo y atracción de talento: la empresa genera una imagen de prosperidad que influye en la percepción de la ciudad.</li>
+  <li>Cambio en la demanda residencial: los trabajadores de Inditex son considerados inquilinos “ideales”, percibidos como solventes y estables, lo que margina al precariado local.</li>
+  <li>Contribución indirecta a la gentrificación: zonas céntricas se adaptan al estilo de vida de esa “clase creativa” y a la economía del consumo cultural y turístico.</li>
+  <li>La autora y los expertos advierten que A Coruña depende en exceso del “monocultivo Inditex” (hasta un 45% de la productividad local), lo que supone un riesgo futuro.</li>
+</ul>
+<p>&lt;/li&gt;&lt;/ul&gt;&lt;hr&gt;</p>
+<h3 id="5problemas-estructurales">5.<strong>Problemas estructurales</strong></h3>
+
+<ul>
+  <li>Escasez de vivienda pública y políticas de alquiler social.</li>
+  <li>Desigualdad territorial: distritos como Monte Alto y Torre concentran precios más altos; Los Mallos o Agra del Orzán muestran menor renta y envejecimiento poblacional.</li>
+  <li>Dependencia del sector inmobiliario y de la plusvalía del suelo en los presupuestos municipales.</li>
+  <li>Presión del turismo y auge de pisos turísticos, que agravan la exclusión residencial.</li>
+</ul>
+<hr />
+
+<h3 id="-conclusión-general">🧭 Conclusión general</h3>
+
+<p>El mercado inmobiliario coruñés combina tres tensiones:</p>
+
+<ol>
+  <li>Desequilibrio centro-periferia → abandono del centro seguido de gentrificación.</li>
+  <li>Influencia de Inditex → simbólica y material, reconfigura quién puede vivir y consumir en el centro.</li>
+  <li>Débil intervención pública → políticas de vivienda insuficientes para frenar exclusión o especulación.</li>
+</ol>
+
+<p>En palabras de la tesis, A Coruña es hoy <strong>una “ciudad creativa gentrificada”</strong>, donde el acceso a la vivienda depende tanto de los ingresos como del tipo de empleo y de la identidad social del inquilino.</p>
+<hr />
+
+<h1 id="bibliografía">Bibliografía</h1>
+
+<ul>
+  <li>Maravillosa tesis doctoral de 400 y pico páginas de Julia Nogueira Dominguez https://ruc.udc.es/entities/publication/8a8f26be-5d80-483e-8241-50f59c7aa920</li>
+</ul>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="real-estate" /><category term="Spain" /><category term="Coruña" /><summary type="html"><![CDATA[Encontré una tésis de 400 y pico páginas sobre la influencia de Inditext en el mercado inmobiliario de Coruña pero lo mas maravilloso de la tesis no es inditex sino como desgrana en 400 páginas las particularidades de esta ciudad. Aqui un resumen.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1560253451.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1560253451.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Using HAProxy for Ngrok-style domain tunneling in Nixos with SSL self-renewal enabled</title><link href="http://localhost:4000/2025/10/14/using-haproxy-for-ngrok-style-domain-tunneling-in-nixos-with-ssl-self-renewal-enabled.html" rel="alternate" type="text/html" title="Using HAProxy for Ngrok-style domain tunneling in Nixos with SSL self-renewal enabled" /><published>2025-10-14T00:00:00+02:00</published><updated>2025-10-14T00:00:00+02:00</updated><id>http://localhost:4000/2025/10/14/using-haproxy-for-ngrok-style-domain-tunneling-in-nixos-with-ssl-self-renewal-enabled</id><content type="html" xml:base="http://localhost:4000/2025/10/14/using-haproxy-for-ngrok-style-domain-tunneling-in-nixos-with-ssl-self-renewal-enabled.html"><![CDATA[<p>I love accessing computers from elsewhere yet hate Ngrok, Tailscale and Zrok with passion so I made a post not long ago about <a href="/pagekite-with-custom-domain-in-nixos-tunneling-without-ngrok-for-free/">how to self-host Pagekite</a> to be able to use your own domain names for this. The problem is how ugly it made my configuration.nix files and how I didn’t manage to write an auto-renewal script. Today I’ve figured how using ACME. HAProxy seems to have the same issue of wanting a single file for all keys but I managed to bypass that one here.</p>
+
+<h1 id="configurationnix">Configuration.nix</h1>
+<p><code># Assuming configuration.nix { # Rest of your file imports = [ # Rest of your imports ./haproxy-acme.nix ] } `&lt;/pre&gt; # Server: haproxy-acme.nix &lt;p&gt;Change `serverNames` for whatever list of servers you want to add, don't forget to manually edit the `services.haproxy.config` configuration too for your added servernames without SSL, in my case is my zerotier one, accessible on my zerotier network.</code></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">acme_email</code>variable should point to your var.
+<code>{ config, pkgs, ... }: let acme_email = "acme@maikel.dev"; # Map domains to their backend host:port serverBackends = { "something_one.maikeladas.es" = "127.0.0.1:4000"; # Phoenix dev server. "something_else.maikeladas.es" = "thinkpad.zerotier:8080"; #Zerotier URL }; serverNames = builtins.attrNames serverBackends; # ACLs aclLines = builtins.concatStringsSep "\n" (map (d: let aclName = "host_${builtins.replaceStrings [ "." ] [ "_" ] d}"; in " acl ${aclName} hdr(host) -i ${d}" ) serverNames); redirectLines = builtins.concatStringsSep "\n" (map (d: " http-request redirect scheme https code 301 if host_${builtins.replaceStrings [ "." ] [ "_" ] d}") serverNames); # use_backend lines backendLines = builtins.concatStringsSep "\n" (map (d: let aclName = "host_${builtins.replaceStrings [ "." ] [ "_" ] d}"; backendName = builtins.replaceStrings [ "." ] [ "_" ] d; in " use_backend ${backendName}_app if ${aclName}" ) serverNames); # crt files crtFiles = builtins.concatStringsSep " " (map (d: "crt /var/lib/haproxy/certs/${d}.pem" ) serverNames); # backend definitions backendDefs = builtins.concatStringsSep "\n" (map (d: let backendName = builtins.replaceStrings [ "." ] [ "_" ] d; backendAddr = serverBackends.${d}; indent = " "; # 1 tab = 4 spaces in '' ${indent}backend ${backendName}_app ${indent} mode http ${indent} server ${backendName}_1 ${backendAddr} check inter 2s fall 3 rise 2 ${indent} errorfiles customerrors '' ) serverNames); in { # SSL certificates for HAProxy security.acme = { acceptTerms = true; defaults.email = acme_email; certs = builtins.listToAttrs (map (domain: { name = domain; value = { webroot = "/var/lib/acme/acme-challenge"; group = "haproxy"; postRun = '' mkdir -p /var/lib/haproxy/certs cat /var/lib/acme/${domain}/fullchain.pem \ /var/lib/acme/${domain}/key.pem \ &gt; /var/lib/haproxy/certs/${domain}.pem chown root:haproxy /var/lib/haproxy/certs/${domain}.pem chmod 0640 /var/lib/haproxy/certs/${domain}.pem ''; }; }) serverNames); }; # HAProxy service services.haproxy = { enable = true; config = '' global log stdout format raw local0 maxconn 2000 defaults log global mode http option httplog option dontlognull option forwardfor except 127.0.0.1 timeout connect 5s timeout client 30s timeout server 30s retries 3 frontend http_in bind *:80 acl acme_challenge path_beg /.well-known/acme-challenge/ use_backend acme_backend if acme_challenge acl host_zt hdr(host) -i stephen.zerotier ${aclLines} use_backend something_one_maikeladas_es_app if host_zt ${redirectLines} default_backend not_found frontend https_in bind *:443 ssl ${crtFiles} mode http acl acme_challenge path_beg /.well-known/acme-challenge/ ${aclLines} use_backend acme_backend if acme_challenge ${backendLines} default_backend not_found backend acme_backend mode http server local_acme 127.0.0.1:8081 ${backendDefs} http-errors customerrors errorfile 503 /etc/haproxy/errorfiles/503.http backend not_found mode http errorfiles customerrors ''; user = "haproxy"; group = "haproxy"; }; environment.etc."haproxy/errorfiles/503.http".text = '' HTTP/1.1 503 Service Unavailable Cache-Control: no-cache Connection: close Content-Type: text/html ${builtins.readFile ./haproxy-error-503.html} ''; # Local HTTP server to serve ACME challenges systemd.services.acme-challenge-server = { description = "Serve Let's Encrypt challenges for HAProxy"; wantedBy = [ "multi-user.target" ]; serviceConfig = { ExecStart = "${pkgs.python3}/bin/python3 -m http.server 8081 --directory /var/lib/acme/acme-challenge"; Restart = "always"; }; }; } `&lt;/pre&gt; # Your laptop or other PC configuration to be accessible &lt;p&gt;Assuming you use Zerotier (is free) and have it in the same network as the server (I do) and you know the IP or domain name if you have it in /etc/hosts (I do but I prefer to use IPs). Notice how I've limited the listening interfaces to that one of Zerotier only.</code></p>
+
+<p>Of course import this file in your configuration for that machine. I call it <code class="language-plaintext highlighter-rouge">haproxy-redirect.nix</code> to make it clear what the nix contains.
+<code>{ config, pkgs, ... }: { # HAProxy service services.haproxy = { enable = true; config = '' global log stdout format raw local0 maxconn 2000 defaults log global mode http option httplog option dontlognull option forwardfor except 127.0.0.1 timeout connect 5s timeout client 30s timeout server 30s retries 3 frontend local_http bind thinkpad.zerotier:8080 default_backend phoenix_app backend phoenix_app server phoenix_1 127.0.0.1:4000 check inter 2s fall 3 rise 2 errorfile 503 /etc/haproxy/errorfiles/503.http ''; user = "haproxy"; group = "haproxy"; }; environment.etc."haproxy/errorfiles/503.http".text = '' HTTP/1.1 503 Service Unavailable Cache-Control: no-cache Connection: close Content-Type: text/html ${builtins.readFile ./haproxy-error-503.html} ''; } `&lt;/pre&gt; ## The default 503 error file ![Image](/assets/images/2025-10-image-1.png)&lt;p&gt;All errors I got when I turned off any of them servers were of type 503 so that's the error I customised. The files is `haproxy-error-503.html` and should be in the same folder as the nix configuration. The content is this</code></p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8" /&gt;
+    &lt;title&gt;Service Unavailable&lt;/title&gt;
+    &lt;style&gt;
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #fafafa;
+        color: #333;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      main {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #c0392b;
+      }
+      p {
+        font-size: 1rem;
+        color: #666;
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;main&gt;
+      &lt;h1&gt;503 – Service Unavailable&lt;/h1&gt;
+      &lt;p&gt;Our server is taking a quick break. Please try again in a moment.&lt;/p&gt;
+    &lt;/main&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h1 id="advantages-over-the-pagekite-way">Advantages over the Pagekite way</h1>
+
+<ol>
+  <li>HAProxy is a lot more robust.</li>
+  <li>Since you’re using already a machine as server and Zerotier for LAN-like communication, this harness precisely all that to make the config a lot simpler.</li>
+  <li>SSL renewal bult-in.</li>
+  <li>You can just stop the services whenever, the 503 custom-error page will be shown. No need to remember to “sysctl stop whatever”</li>
+  <li>Custom error page.</li>
+</ol>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="NixOS" /><category term="DevOps" /><category term="networking" /><category term="tunneling" /><category term="SSL" /><summary type="html"><![CDATA[Another way to do the same tunneling without Ngrok or any paid service, but this time with autorenewal of the SSL and in a more robust and simple manner.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1637481687365.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1637481687365.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Pagekite with Custom Domain in Nixos, tunneling without Ngrok for free</title><link href="http://localhost:4000/2025/10/09/pagekite-with-custom-domain-in-nixos-tunneling-without-ngrok-for-free.html" rel="alternate" type="text/html" title="Pagekite with Custom Domain in Nixos, tunneling without Ngrok for free" /><published>2025-10-09T00:00:00+02:00</published><updated>2025-10-09T00:00:00+02:00</updated><id>http://localhost:4000/2025/10/09/pagekite-with-custom-domain-in-nixos-tunneling-without-ngrok-for-free</id><content type="html" xml:base="http://localhost:4000/2025/10/09/pagekite-with-custom-domain-in-nixos-tunneling-without-ngrok-for-free.html"><![CDATA[<p>There are instructions all over on how to configure Pagekite on Ubuntu but none on NixOS there’s not even a derivation of it so I made one. I’m tired of Zrok, Ngrok, Tailscale and all of their offerings that are either closed-source or impossibly hard to install or maintain. Let alone **to use a custom domain **you’ll have to pay north of 20 USD per month.</p>
+
+<p>I just want to be able to use my own domains, that’s all. I don’t need any of the other fancy stuff so even though Pagekite is a lot cheaper than all of them 3, to use custom domains **with **SSL is not so much. So I decided to self-host the frontend. Btw, whoever decided to call the server “frontend” and the client “backend” deserves to be hanged upside down in a bucket filled with piranhas.</p>
+
+<h2 id="getting-ssl">Getting SSL</h2>
+
+<p>Think that here <code class="language-plaintext highlighter-rouge">DOMAIN</code> is going to be the parent domain. I could make it be directly maikeladas.es but I have other stuff there and using a wildcard would force me to get rid of subdomains so I rather use a subdomain for specific temporary stuff, in this case <code class="language-plaintext highlighter-rouge">dev.maikeladas.es</code>. I could have used <code class="language-plaintext highlighter-rouge">maikel.dev</code>but the restrictions of dev domains that you cannot use port 80. They force you to use 443 and SSL. I want flexibility.
+<code>mkdir $HOME/certs set DOMAIN dev.maikeladas.es nix-shell -p certbot certbot certonly --manual \ --work-dir=$HOME/certs --logs-dir=/tmp/ --config-dir=$HOME/certs \ --preferred-challenges=dns \ --email avalid@email.whatever \ --server https://acme-v02.api.letsencrypt.org/directory \ --agree-tos \ -d "*.$DOMAIN" exit sudo cat \ $HOME/certs/live/$DOMAIN/fullchain.pem \ $HOME/certs/live/$DOMAIN/privkey.pem \ | sudo tee $HOME/certs/keycert.pem &gt; /dev/null `&lt;/pre&gt;&lt;p&gt;Now you have the keycert.pem file that Pagekite requires to provide domains over HTTPS. The certificate will require renewal every 6 months. It can be automated but that's for another day.</code></p>
+
+<h2 id="do-your-dns-changes">Do your DNS changes</h2>
+
+<p>Go to your DNS provider. For the domain create a <code class="language-plaintext highlighter-rouge">*.dev.YOURDOMAIN.COM</code> record of A type pointing to the IP and one of the parent subdomain pointing to the same IP. So also <code class="language-plaintext highlighter-rouge">dev.YOURDOMAIN.COM</code> again of A type.</p>
+
+<h2 id="nixos-changes-to-get-pagekite">NixOS Changes to get Pagekite</h2>
+
+<p>Assuming you use configuration.nix or somefile.nix that is not a flake.
+<code>{ config, lib, pkgs, ... }: let kitesecret = "YOUR_KITE_PASS"; pagekite = import ./pagekite-package.nix" { inherit pkgs; }; in { # The rest of your config # To install the derivation while keeping it around to pass it environment.systemPackages = lib.mkAfter [ pagekite ]; imports = [ # ...your other imports # Import as functions, passing pagekite and kitesecret explicitly # If this machine is the client (import ./pagekite-client.nix { inherit config pkgs lib pagekite kitesecret; frontendHost = "dev.maikeladas.es"; frontendPort = 80; backendHost = "stephen.dev.maikeladas.es"; backendLocalPort = 4000; }) # If this machine is the server (import ./pagekite-server.nix { inherit config pkgs lib pagekite kitesecret; kitename = "*.dev.maikeladas.es"; ports = "80,443"; protos = "http,https"; domainHttp = "*.dev.maikeladas.es"; domainHttps = "*.dev.maikeladas.es"; tlsEndpoint = "*.dev.maikeladas.es:/home/maikel/certs/keycert.pem"; }) ]; # The rest of your /etc/nixos/configuration.nix file } `&lt;/pre&gt; ## Then the pagekite-package.nix &lt;p&gt;This is all you need to intsall pagekite.py
+<code>{ pkgs }: pkgs.stdenv.mkDerivation rec { pname = "pagekite"; version = "1.0"; src = pkgs.fetchurl { url = "https://pagekite.net/pk/pagekite.py"; sha256 = "1nqa4nkhjq2shc7zpxn22pxfqpsl6xf06mfxlwa72c5p72zf7x94"; }; nativeBuildInputs = [ pkgs.makeWrapper ]; unpackPhase = ":"; installPhase = '' mkdir -p $out/bin sed "1 s|^.*$|#!${pkgs.python3}/bin/python3|" $src &gt; $out/bin/pagekite chmod +x $out/bin/pagekite ''; } `&lt;/pre&gt; ## Then the pagekite-client.nix &lt;p&gt;This is the one to use a client.
+<code>{ config, pkgs, lib, kitesecret, pagekite, frontendHost, frontendPort, backendHost, backendLocalPort, ... }: let # Construct addresses frontend = "${frontendHost}:${toString frontendPort}"; backend = "http:${backendHost}:localhost:${toString backendLocalPort}"; in { # PageKite client configuration file environment.etc."pagekite.d/${backendHost}.conf".text = '' frontend = ${frontend} service_on = ${backend}:${kitesecret} ''; # Systemd service systemd.services."pagekite-client-${backendHost}" = { description = "PageKite Client Tunnel Service for ${backendHost}"; after = [ "network.target" ]; wantedBy = [ "multi-user.target" ]; serviceConfig = { Type = "simple"; ExecStart = "${pagekite}/bin/pagekite --optfile /etc/pagekite.d/${backendHost}.conf"; Restart = "always"; RestartSec = 10; User = "root"; }; }; } `&lt;/pre&gt; ## Then the pagekite-server.nix &lt;p&gt;This is the one to run a server. This machine needs to be one that responds when you ping `dev.YOURDOMAIN.COM` and `*.dev.YOURDOMAIN.COM` so you must have your DNS configured correctly.
+<code>{ config, pkgs, lib, kitesecret, pagekite, kitename, ports, protos, domainHttp, domainHttps, tlsEndpoint, ... }: { # PageKite server configuration file environment.etc."pagekite.d/pk-server.conf".text = '' kitename = ${kitename} kitesecret = ${kitesecret} isfrontend ports = ${ports} protos = ${protos} domain = http:${domainHttp}:${kitesecret} domain = https:${domainHttps}:${kitesecret} tls_endpoint = ${tlsEndpoint} ''; # Systemd service systemd.services.pagekite = { description = "PageKite Reverse Tunnel Service"; after = [ "network.target" ]; wantedBy = [ "multi-user.target" ]; serviceConfig = { Type = "simple"; ExecStart = "${pagekite}/bin/pagekite --optfile /etc/pagekite.d/pk-server.conf"; Restart = "always"; RestartSec = 10; User = "root"; }; }; } `&lt;/pre&gt; # How to use it &lt;p&gt;On whatever machine plays as server add the necessary files to run the server, and on the client for the client. Both cases need pagekite-package.nix though. Then just `nixos-rebuild switch` or whatever NixOS method you use to update your config.</code></code></code></code></p>
+
+<p>I normally do a <code class="language-plaintext highlighter-rouge">sudo systemctl stop pagekite-client-DOMAIN</code> after running any client the first time so it’s only available when I need it.
+<img src="/assets/images/2025-10-image.png" alt="Image" /></p>
+<h2 id="caveats">Caveats</h2>
+
+<ol>
+  <li>I haven’t automated SSL renewal, it can be done, but I need to have a life. I might not be using this in six months.</li>
+  <li>If you stop whatever is you’re serving or the server, the client hangs and does not auto-reconnect. So get ready to restart the client.</li>
+  <li>You won’t have to pay ever again Zrok, Ngrok or Tailscale for using a custom domain. Oh, the suffering!</li>
+</ol>
+
+<!--kg-card-begin: html-->
+<div><iframe src="https://giphy.com/embed/5WXqTFTgO9a7e" frameborder="0" allowfullscreen=""></iframe></div>
+<!--kg-card-end: html-->
+<p>If you liked this article consider tipping me on Ko-Fi 👇
+<!--kg-card-begin: html-->
+<script type="text/javascript" src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script><script type="text/javascript">kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'H2H4GCC0N');kofiwidget2.draw();</script>
+<!--kg-card-end: html--></p>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="NixOS" /><category term="DevOps" /><category term="networking" /><category term="tunneling" /><summary type="html"><![CDATA[I got tired of Ngrok, Zrok, Tailscale and all of these options that charge you absurds amounts of money for just letting you use your own domain names in a web tunnel to try APIs or development. So I made my own derivation in NixOS to run Pagekite.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1610098905401.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1610098905401.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Running FreeBSD from NixOS using Libvirtd from scratch: v3.0</title><link href="http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0-2.html" rel="alternate" type="text/html" title="Running FreeBSD from NixOS using Libvirtd from scratch: v3.0" /><published>2025-09-27T00:00:00+02:00</published><updated>2025-09-27T00:00:00+02:00</updated><id>http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0-2</id><content type="html" xml:base="http://localhost:4000/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0-2.html"><![CDATA[<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">This is the third version of this post as I figure how to remove complexity by going deeper into the docs and finding **the right way **to get VMs accessible by hostname. 
+
+**New in this version vs v.2.0**
+1. Removed **add_vm_to_network** Fish-shell function since it is no longer necesary. 
+2. Fixed **create_vm **Fish-shell function since now it doesn't need MACs. 
+3. Simplified network edition. 
+4. Edited configuration.nix to include **nss**, which is what made everything simpler. Since now it resolves hostnames. 
+5. Discovered how to set the default URI to avoid having to add <code spellcheck="false">-c qemu:///system"</code> to every command. 
+6. The Fish-shell function **clone_user_data **automatically creates a folder for that VM and puts the user-data file there. I made it nicer in the ZT version. 
+7.**Added a repo **with all the functions</div></div>
+<p>I use <strong>FreeBSD</strong> for work because my clients deploy servers on it. At home, I have a PC with 32 GB of RAM and use <strong>NixOS</strong>, so I wanted to run FreeBSD locally for quick tests.</p>
+
+<p>My first choice would normally be <strong>VirtualBox</strong>, but on NixOS it’s a pain: every system upgrade forces VirtualBox to be recompiled. Since I upgrade often, that became unmanageable.</p>
+
+<p>People in the fediverse suggested <strong>libvirtd</strong>, so I gave it a try. It’s trickier at first, but once you learn a few commands it’s not bad at all—and in fact, it allows for a lot of automation.</p>
+
+<h1 id="installing-libvirtd">Installing Libvirtd</h1>
+
+<p>In configuration.nix you need to make the following changes.
+<code># Add the user to these groups, internet wisdom is not clear about what exactly is the name of each group. users.users.maikel = { extraGroups = [ "libvirtd", "libvirt", "qemu-libvirtd" ]; }; # Enable libvirtd virtualisation = { libvirtd = { enable = true; qemu.vhostUserPackages = with pkgs; [ virtiofsd ]; # Enable NSS plugin for resolving VM hostnames nss = { enable = true; # classic libvirt NSS enableGuest = true; # resolves domain names of guests }; }; }; # Add Virt-Manager makes simpler to explore actual configs. programs.virt-manager.enable = true; environment = { systemPackages = with pkgs; [ virt-viewer cloud-utils cloud-init ]; }; `&lt;/pre&gt; # Running commands when using Libvirtd as a system's service &lt;p&gt;Despite all the changes there, I still need to prepend all virsh and virt-viewer commands with
+<code># For Virsh virsh -c qemu:///system # For Virt-viewer virt-viewer -c qemu:///system `&lt;/pre&gt;&lt;p&gt;One way to avoid having to do this is to assign the environment variable in Bash
+<code># Append to ~/.bashr or ~./profile, whichever is the last to load on your system export LIBVIRT_DEFAULT_URI="qemu:///system" `&lt;/pre&gt;&lt;p&gt;In my case since I use Fish shell then it is
+<code># Run this from anywhere, it automatically stores it in ~/.config/fish/fish_variables set -Ux LIBVIRT_DEFAULT_URI qemu:///system `&lt;/pre&gt; # Configuring the Network &lt;p&gt;By default there's nothing running network wise. So you need to start the default network with
+<code># Starts it if you can't see any new networks in ifconfig virsh net-start default # So it autostarts virsh net-autostart default `&lt;/pre&gt;&lt;p&gt;That will run the virtual network every time the PC reboots.</code></code></code></code></code></p>
+
+<h2 id="modifying-the-default-network-to-your-desired-ip-range">Modifying the default network to your desired IP range</h2>
+<p><code>virsh net-dumpxml default &gt; mynetwork.xml `&lt;/pre&gt;&lt;p&gt;We get this from it on the file mynetwork.xml
+<code>&lt;network&gt; &lt;name&gt;default&lt;/name&gt; &lt;uuid&gt;07c8b831-3fa7-4bb1-ae07-fad64b672a67&lt;/uuid&gt; &lt;forward mode='nat'&gt; &lt;nat&gt; &lt;port start='1024' end='65535'/&gt; &lt;/nat&gt; &lt;/forward&gt; &lt;bridge name='virbr0' stp='on' delay='0'/&gt; &lt;mac address='52:54:00:9f:f9:f6'/&gt; &lt;ip address='192.168.122.1' netmask='255.255.255.0'&gt; &lt;dhcp&gt; &lt;range start='192.168.122.2' end='192.168.122.254'/&gt; &lt;/dhcp&gt; &lt;/ip&gt; &lt;/network&gt; `&lt;/pre&gt;&lt;p&gt;I'm going to change the range to 192.168.100.0/24 and the network name to `maikenet` since I like it more and tells me on the name what is is. You can remove UUID.
+<code>&lt;network&gt; &lt;name&gt;maikenet&lt;/name&gt; &lt;forward mode='nat'&gt; &lt;nat&gt; &lt;port start='1024' end='65535'/&gt; &lt;/nat&gt; &lt;/forward&gt; &lt;bridge name='virbr0' stp='on' delay='0'/&gt; &lt;mac address='52:54:00:9f:f9:f6'/&gt; &lt;ip address='192.168.100.1' netmask='255.255.255.0'&gt; &lt;dhcp&gt; &lt;range start='192.168.100.2' end='192.168.100.254'/&gt; &lt;/dhcp&gt; &lt;/ip&gt; &lt;/network&gt; `&lt;/pre&gt;&lt;p&gt;Now let's destroy the network interface and create a new one, we're going to need the MAC and name later on. Beware if you're doing these commands while your machines are running and attached to any network you're destroying, they might need a reboot to recover their IPs once that network is back up.
+<code># To destroy it virsh net-destroy default # We need to undefine it in case something is assigned to it already but also because we're not using it anymore. virsh net-undefine default # To recreate it from file virsh net-define mynetwork.xml # Now start it and autostart to ensure it starts with NixOS virsh net-start maikenet virsh net-autostart maikenet # Check with an ifconfig ifconfig # You should see an adapter virbr0 with the right IP `&lt;/pre&gt; # Creating a cloud-init enabled image &lt;p&gt;IMPORTANT: Download the VM version, not the installer version [https://www.freebsd.org/where/](https://www.freebsd.org/where/)</code></code></code></code></p>
+
+<h2 id="for-a-zfs-vm-image">For a ZFS VM image</h2>
+
+<p>This will create a template on your PC to run cloud-init from the ZFS VM image that uses as ZFS filesystem, <strong>the most common case.</strong>
+<code># Make a folder for your vms mkdir $HOME/vms cd $HOME/vms # Download standard VM image and unzip it wget https://download.freebsd.org/releases/VM-IMAGES/14.3-RELEASE/amd64/Latest/FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz # Decompress but keeps the original xz -dk FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz # Make the disk slightly bigger mv FreeBSD-14.3-RELEASE-amd64-zfs.qcow2 freebsd14-cloud-init-zfs.qcow2 qemu-img resize freebsd14-cloud-init-zfs.qcow2 10G # Run it with the "default" network to install CloudInit virt-install \ --name freebsd-zfs \ --memory 2048 \ --vcpus 2 \ --disk path=freebsd14-cloud-init-zfs.qcow2,format=qcow2,bus=virtio \ --os-variant freebsd14.0 \ --import \ --network network=maikenet,model=virtio \ --graphics spice `&lt;/pre&gt; ## Now inside the machine &lt;p&gt;The default root user is passwordless so if you use `root` it won't ask for any password, just log you in.
+<code># OPTIONAL: Keyboard to Spanish, symbols are in different places kbdcontrol -l es # Now inside the machine prepare it for cloud-init (as root, no pass) pkg update pkg search cloud-init pkg install -y WHATEVER_VERSION_YOU_GOT_FROM_SEARCH # Now enable it sysrc cloudinit_enable="YES" poweroff # On your host system: Back it up xz -k freebsd14-cloud-init-zfs.qcow2 `&lt;/pre&gt; # Using your own templates to launch custom-made VMs easily ## Create a cloud-init config &lt;p&gt;The SSH key I have there is the default one I have in SSH part of my home-manager config.</code></code></p>
+
+<ol>
+  <li>Create this file as user-data.yaml on the $HOME/vms folder as the basic template for all other machines</li>
+</ol>
+
+<p><code>#cloud-config hostname: freebsd1 users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false # Use mkpasswd -m sha-512 to get this passwd: "$6$L80IKTwDwcfp......josH0" ssh_authorized_keys: - ssh-ed25519 AAAA......ikel.dev ssh_pwauth: True keyboard: layout: es packages: - fish - sudo - mkpasswd - neovim - ncdu - git runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # OPTIONAL: Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # OPTIONAL: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish # OPTIONAL: Auto resize main partition - gpart recover vtbd0 - gpart resize -i 4 vtbd0 - zpool online -e zroot /dev/vtbd0p4 `&lt;/pre&gt;</code></p>
+<ol>
+  <li>Use this command to create a CD-ROM ISO to launch it from. Assuming you’re in <code class="language-plaintext highlighter-rouge">$HOME/vms</code></li>
+</ol>
+<pre><code>cloud-localds seed.iso user-data.yaml `&lt;/pre&gt; ## Creating the final machine using the ZFS image <pre><code># Access the folder of your vms cd $HOME/vms # Decompress the fresh cloud-init-enabled version we created before. xz -dk freebsd14-cloud-init-zfs.qcow2.xz # Rename it to something more useful to distinguish it from the template cp freebsd14-cloud-init-zfs.qcow2 freebsd1.qcow2 # Create the seed ISO from user-data.yaml in case you've made any changes. cloud-localds freebsd1.iso user-data.yaml # Make the disk bigger here it is set to 20G but you can do whatever size you like qemu-img resize freebsd1.qcow2 50G virt-install \ --name freebsd1 \ --memory 4096 \ --vcpus 4 \ --disk path=freebsd1.qcow2,format=qcow2,bus=virtio \ --disk path=freebsd1.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --network network=maikenet,model=virtio \ --graphics spice \ --noautoconsole # Added this here because I prefer to let it run first. # To view virt-viewer freebsd-new `&lt;/pre&gt;<p>And that's it, your system should be up and running ready to be used and because you enabled NSS and added it your default SSH key (default in .ssh/config) then you can just log into it with a simple...
+<code>ssh maikel@freebsd1 `&lt;/pre&gt;<p>...once the machine finishes running all of its cloud-init script.
+![Image](/assets/images/2025/09/image-4.png)
+# Extra steps for your own sanity
+
+## Resizing the partition to use all available space (ZFS)
+
+If you want your system to use all the available space in your qcow2 file after resizing it you'll need some extra steps. This can all be added on the user-data template though which I did so you don't need to.
+
+`# Ensure vtbd0 is the name of it gpart show # Reize partition gpart recover vtbd0 # Get the lice or number of partition, in my case is 4 gpart show # This is assumign the slice is 4 gpart resize -i 4 vtbd0 # Again the end "p4" depends on the slice number zpool online -e zroot /dev/vtbd0p4 # Check with zpool list `&lt;/pre&gt;<p>That's all your machine is ready to use. If you ever need to change the size of the qcow2 file repeat those steps.
+
+## Autostart this machine with NixOS
+
+Run on the host machine
+<code>virsh autostart freebsd1 `&lt;/pre&gt;<p>Otherwise to start manually
+<code>virsh start freebsd1 `&lt;/pre&gt; ## Detach cloud-init disk just in case <p>Normally cloud-init runs only once, but just to be sure on the host machine
+<code># To find the name of the ISO device, in my case "hda" virsh domblklist freebsd1 # To both remove it and ensure it never comes back after reboot virsh change-media freebsd1 hda --eject --config --live `&lt;/pre&gt; ## Cloning user data <p>I create this mostly because I was considering the Zerotier one that is far below and realised I can kill two birds with one shot.
+<code>function clone_user_data if test (count $argv) -ne 1 echo "Usage: clone_user_data &lt;vmname&gt;" return 1 end set NEWVM $argv[1] set BASE "$HOME/vms/user-data.yaml" set vm_dir $HOME/vms/in_use/$vm mkdir -p $vm_dir set OUT "$vm_dir/$NEWVM-user-data.yaml" if not test -f $BASE echo "Error: base file $BASE does not exist" return 1 end # Replace hostname line sed "s/^hostname:.*/hostname: $NEWVM/" $BASE &gt; $OUT echo "Created config: $OUT" end `&lt;/pre&gt; ## Creating machines quickly with Fish function <p>At the moment I separete creating the user-data file for that machine from creating it because precisely we might want to change what is installed on the machine. So this is how I normally do it now:
+<code># Assumign decompressed ready cloud image on ~/vms # Create a user-data file for that machine. clone_user_data freebsd4 # Edit it vi $HOME/vms/in_use/freebsd4/freebsd4-user-data.yaml # Create the machine create_vm freebsd4 `&lt;/pre&gt;<p>Then create the machine
+<code>function create_vm if test (count $argv) -lt 1 echo "Usage: createvm &lt;vm-name&gt;" return 1 end set vm $argv[1] set vm_dir $HOME/vms/in_use/$vm cd $vm_dir echo "Copying template to VM disk..." cp $HOME/vms/freebsd14-cloud-init-zfs.qcow2 $vm.qcow2 echo "Creating seed ISO..." cloud-localds $vm.iso $vm-user-data.yaml echo "Resizing disk..." qemu-img resize $vm.qcow2 20G echo "Launching VM..." virt-install \ --connect qemu:///system \ --name $vm \ --memory 4096 \ --vcpus 4 \ --disk path=$vm.qcow2,format=qcow2,bus=virtio \ --disk path=$vm.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --network network=maikenet,model=virtio \ --graphics spice \ --noautoconsole echo "VM $vm launched." end `&lt;/pre&gt; ## Destroying machines quickly with Fish shell <pre><code>function destroy_vm if test (count $argv) -lt 1 echo "Usage: destroyvm &lt;vm-name&gt;" return 1 end set vm $argv[1] echo "Destroying VM $vm..." virsh destroy $vm echo "Undefining VM $vm..." virsh undefine $vm set disk ~/vms/in_use/$vm/$vm.qcow2 set seed ~/vms/in_use/$vm/$vm.iso set userdata ~/vms/in_use/$vm/$vm-user-data.yaml if test -f $disk echo "Deleting disk $disk..." rm -f $disk else echo "Disk $disk not found, skipping." end if test -f $seed echo "Deleting seed $seed..." rm -f $seed else echo "Disk $seed not found, skipping." end if test -f $userdata echo "Deleting user-data $userdata..." rm -f $userdata else echo "Disk $userdata not found, skipping." end rm -rf $HOME/vms/in_use/$vm end `&lt;/pre&gt; ## Zerotier on creation with self-authorisation <p>This is something I'm experimenting with, installing Zerotier and joining a network are easy steps but I want it to self-authorise too. It does works as it currently is but I want the variables to be fed into the cloud config somehow instead of hard-coding the variables.
+
+Then once the machine is up and running you can just and simply run `/root/join-network.sh` as root.
+
+I set a few variables to simplify this all, for example I want the fish funcitons to be in the vm folder as they are all related to this.
+<code># This loads functions from the path in the vms add to config.fish set -g fish_function_path $fish_function_path ~/vms/fish_functions # This sets the default password I want to use for my machines which is later hashed by mkpasswd, can be set from the shell set -Ua DEFAULT_VM_PASSWORD whatever_passw_you_want `&lt;/pre&gt;<p>I also did a few more changes here and in the cloning function since now this is my standard user-data.yaml template
+<code>#cloud-config hostname:  users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false passwd: "" ssh_authorized_keys: -  ssh_pwauth: True keyboard: layout: es packages: - fish - sudo - mkpasswd - neovim - ncdu - zerotier - curl - jq write_files: - path: /root/join-network.sh permissions: '0755' content: | #!/bin/sh zerotier-cli join "" &amp;&amp; \ MEMBER_ID=$(zerotier-cli info | awk '{print $3}') &amp;&amp; \ curl -H "Authorization: token " -X POST \ "https://api.zerotier.com/api/v1/network//member/$MEMBER_ID" \ --data '{"config": {"authorized": true}}' runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # Optional: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish # Auto resize main partition - gpart recover vtbd0 - gpart resize -i 4 vtbd0 - zpool online -e zroot /dev/vtbd0p4 # Zerotier joy - sysrc zerotier_enable="YES" - service zerotier start `&lt;/pre&gt;<p>Applying the ZT_TOKEN and ZT_NW with a Fish-shell function `clone_user_data VM_NAME`
+<code>function clone_user_data if test (count $argv) -ne 1 echo "Usage: clone_user_data &lt;vmname&gt;" return 1 end set NEWVM $argv[1] set BASE "$HOME/vms/user-data.yaml" set VM_DIR "$HOME/vms/in_use/$NEWVM" mkdir -p "$VM_DIR" echo "Created directory $VM_DIR" set OUT "$VM_DIR/$NEWVM-user-data.yaml" if not test -f $BASE echo "Error: base file $BASE does not exist" return 1 end if test -z "$ZT_TOKEN" echo "Error: ZT_TOKEN environment variable not set" return 1 end if test -z "$ZT_NWID" echo "Error: ZT_NWID environment variable not set" return 1 end if test -z "$DEFAULT_VM_PASSWORD" echo "Error: DEFAULT_VM_PASSWORD environment variable not set" return 1 end # Generate hashed password set PASSWD (mkpasswd -m sha-512 $DEFAULT_VM_PASSWORD) # Extract default identity file from ssh config (already a .pub in your setup) set PUBKEYFILE (grep -m1 -i 'IdentityFile' ~/.ssh/config | awk '{print $2}' | sed "s|~|$HOME|") if test -z "$PUBKEYFILE" echo "Error: could not find IdentityFile in ~/.ssh/config" return 1 end if not test -f $PUBKEYFILE echo "Error: public key $PUBKEYFILE not found" return 1 end set PUBKEY (cat $PUBKEYFILE) sed \ -e "s||$NEWVM|g" \ -e "s||$ZT_NWID|g" \ -e "s||$ZT_TOKEN|g" \ -e "s||$PASSWD|g" \ -e "s||$PUBKEY|" \ $BASE &gt;$OUT if test $status -ne 0 echo "Error: failed to generate $OUT" return 1 end echo "Created config: $OUT" end `&lt;/pre&gt; ## Installing a desktop environment <p>I use KDE, it really just needs to read the handbook anf follow it step by step. I even created its own `desktop-user-data.yaml` file for this one in case I ever need the desktop.
+
+The yaml file for cloudinit:
+<code>#cloud-config hostname: desktop users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false passwd: "$6$L80IKTw............osH0" ssh_authorized_keys: - ssh-ed25519 ....... maikel.dev ssh_pwauth: True keyboard: layout: es packages: - fish - sudo - mkpasswd - neovim - ncdu - xorg - kde - sddm runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # Optional: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish # Auto resize main partition - gpart recover vtbd0 - gpart resize -i 4 vtbd0 - zpool online -e zroot /dev/vtbd0p4 # Add KDE - pw groupmod video -m maikel - sysrc dbus_enable="YES" - service dbus start - sysctl net.local.stream.recvspace=65536 - sysctl net.local.stream.sendspace=65536 - sysctl -f /etc/sysctl.conf - sysrc sddm_enable="YES" - sysrc sddm_lang="es_ES" - setxkbmap -layout es - service ssdm start `&lt;/pre&gt;<p>The machine has a few differences, I assigned more total system memory (8GB) and hiked the RAM assigned to the video card too. My mouse is a USB one so only works with that line in input. If yours isn't USB delete that line.
+<code>virt-install \ --connect qemu:///system \ --name desktop \ --memory 8192 \ --vcpus 4 \ --disk path=desktop.qcow2,format=qcow2,bus=virtio \ --disk path=desktop.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --video qxl,ram=524288,vram=262144,vgamem=262144 \ --network network=maikenet,model=virtio,mac=52:54:00:6f:3c:58 \ --input type=mouse,bus=usb \ --graphics spice \ --noautoconsole # Added this here because I prefer to let it run first. `&lt;/pre&gt; ## Cleaning up <pre><code># See the machines sudo virsh list --all # The first stops immediately the machine sudo virsh destroy freebsd14 # This second removes it from the pool of VMs of libvirtd sudo virsh undefine frebsd14 # Delete any pre-made seed just in case rm -rf seed.iso `&lt;/pre&gt; # Extra: Repo with all this <p>I made a repo with all these commands including a pre-made ZFS-ready FreeBSD 1.3 image.
+
+The URL is [https://github.com/maikelthedev/libvirtd_automation](https://github.com/maikelthedev/libvirtd_automation)
+
+# Some oddities
+
+These are some painful parts from the process.
+
+### The command `Virt-install` and "~"
+
+I don't know why the path can't interpret "~" hence why I did it all from the `~/vms` folder
+
+### Run without virt-viewer
+
+Sometimes you want to install and see nothing, in those case use
+<code> --graphics spice \ --noautoconsole `&lt;/pre&gt;<p>At the end of the `virt-install` command, this runs the system with graphics enable but doesn't attach any viewer to it.
+</p></code></p></code></pre></code></p></code></p></code></p></code></p></code></p></code></pre></code></p></code></p></code></p></code></p></code></p></code></p></p></code></p></code></pre></code></pre>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="FreeBSD" /><category term="NixOS" /><category term="DevOps" /><category term="virtualization" /><summary type="html"><![CDATA[In version 3 reconfigured the network, simplified the scripts, and used SED extensively to make the template even more useful.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Running FreeBSD from NixOS using Libvirtd from scratch: v2.0</title><link href="http://localhost:4000/2025/09/26/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0.html" rel="alternate" type="text/html" title="Running FreeBSD from NixOS using Libvirtd from scratch: v2.0" /><published>2025-09-26T00:00:00+02:00</published><updated>2025-09-26T00:00:00+02:00</updated><id>http://localhost:4000/2025/09/26/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0</id><content type="html" xml:base="http://localhost:4000/2025/09/26/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0.html"><![CDATA[<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">This is the second version of this post as I added a lot of Fish shell automation and discovered how to streamline lots of processed from yesterday to today so added a lot of fish functions. 
+
+**New in this version**
+1. I removed UFS images to avoid duplication, assume ZFS filesystem. 
+2. I added Fish-shell scripts to automate creation, destruction and network config. 
+3. I show you how to fix the IP to VMs using their MACs and hostnames. 
+4. I show you how to run KDE using cloud-init to configure it. 
+5. I run Zerotier, join a network and self-authorise straight from cloud-init.</div></div>
+<p>I use <strong>FreeBSD</strong> for work because my clients deploy servers on it. At home, I have a PC with 32 GB of RAM and use <strong>NixOS</strong>, so I wanted to run FreeBSD locally for quick tests.</p>
+
+<p>My first choice would normally be <strong>VirtualBox</strong>, but on NixOS it’s a pain: every system upgrade forces VirtualBox to be recompiled. Since I upgrade often, that became unmanageable.</p>
+
+<p>People in the fediverse suggested <strong>libvirtd</strong>, so I gave it a try. It’s trickier at first, but once you learn a few commands it’s not bad at all—and in fact, it allows for a lot of automation.</p>
+
+<h1 id="installing-libvirtd">Installing Libvirtd</h1>
+
+<p>In configuration.nix you need to make the following changes.
+<code># Add the user to these groups, internet wisdom is not clear about what exactly is the name of each group. users.users.maikel = { extraGroups = [ "libvirtd", "libvirt", "qemu-libvirtd" ]; }; # Enable libvirtd virtualisation = { libvirtd = { enable = true; qemu.vhostUserPackages = with pkgs; [ virtiofsd ]; }; }; # Add Virt-Manager makes simpler to explore actual configs. programs.virt-manager.enable = true; environment = { systemPackages = with pkgs; [ virt-viewer cloud-utils cloud-init ]; }; `&lt;/pre&gt; # Running commands when using Libvirtd as a system's service &lt;p&gt;Despite all the changes there, I still need to prepend all virsh and virt-viewer commands with
+<code># For Virsh virsh -c qemu:///system # For Virt-viewer virt-viewer -c qemu:///system`&lt;/pre&gt;&lt;p&gt;Either that or put sudo ahead of all virsh commands. Since I'm lazy I prefer to do what works every time and since I use Fish shell, I just added to `~/.config/fish/conf.d/abbreviations.fish`
+<code>abbr --add virt-viewer "virt-viewer -c qemu:///system" abbr --add virsh "virsh -c qemu:///system" `&lt;/pre&gt;&lt;p&gt;That way every time I write either it auto completes it. If you don't want to autocomplete either use sudo (for virsh) or the whole `-c qemu:///system` for virt-viewer (can't use sudo, you need the display). I like abbr instead of alias because with abbr **I don't actually forget** the full command ever. It's shown to me every time.</code></code></code></p>
+
+<h1 id="configuring-the-network">Configuring the Network</h1>
+
+<p>By default there’s nothing running network wise. So you need to start the default network with
+<code># Starts it if you can't see any new networks in ifconfig virsh -c qemu:///system net-start default # So it autostarts virsh -c qemu:///system net-autostart default`&lt;/pre&gt;&lt;p&gt;That will run the virtual network every time the PC reboots.</code></p>
+
+<h2 id="modifying-the-network-to-assign-fixed-ips">Modifying the network to assign fixed IPs</h2>
+<p><code>virsh net-dumpxml default &gt; mynetwork.xml `&lt;/pre&gt;&lt;p&gt;We get this from it on the file mynetwork.xml
+<code>&lt;network&gt; &lt;name&gt;default&lt;/name&gt; &lt;uuid&gt;07c8b831-3fa7-4bb1-ae07-fad64b672a67&lt;/uuid&gt; &lt;forward mode='nat'&gt; &lt;nat&gt; &lt;port start='1024' end='65535'/&gt; &lt;/nat&gt; &lt;/forward&gt; &lt;bridge name='virbr0' stp='on' delay='0'/&gt; &lt;mac address='52:54:00:9f:f9:f6'/&gt; &lt;ip address='192.168.122.1' netmask='255.255.255.0'&gt; &lt;dhcp&gt; &lt;range start='192.168.122.2' end='192.168.122.254'/&gt; &lt;/dhcp&gt; &lt;/ip&gt; &lt;/network&gt; `&lt;/pre&gt;&lt;p&gt;I'm going to change the range to 192.168.100.0/24 and add a fixed IP by MAC. Also changed the network name to maikenet
+<code>&lt;network&gt; &lt;name&gt;maikenet&lt;/name&gt; &lt;forward mode='nat'&gt; &lt;nat&gt; &lt;port start='1024' end='65535'/&gt; &lt;/nat&gt; &lt;/forward&gt; &lt;bridge name='virbr0' stp='on' delay='0'/&gt; &lt;mac address='52:54:00:9f:f9:f6'/&gt; &lt;ip address='192.168.100.1' netmask='255.255.255.0'&gt; &lt;dhcp&gt; &lt;range start='192.168.100.2' end='192.168.100.254'/&gt; &lt;host mac="52:54:00:6b:3c:58" name="freebsd1" ip="192.168.100.100"/&gt; &lt;/dhcp&gt; &lt;/ip&gt; &lt;/network&gt; `&lt;/pre&gt;&lt;p&gt;Now let's destroy the network interface and create a new one, we're going to need the MAC and name later on.
+<code># To destroy it virsh net-destroy default # We need to undefine it in case something is assigned to it already virsh net-undefine default # To recreate it from file virsh net-define mynetwork.xml # Now start it and autostart to ensure it starts with NixOS virsh net-start maikenet virsh net-autostart maikenet # Check with an ifconfig ifconfig # You should see an adapter virbr0 with the right IP`&lt;/pre&gt; # Creating a cloud-init enabled image &lt;div class="kg-card kg-callout-card kg-callout-card-blue"&gt;&lt;div class="kg-callout-emoji"&gt;💡&lt;/div&gt;&lt;div class="kg-callout-text"&gt;**IMPORTANT**</code></code></code></code></p>
+
+<p>Always download the VM version, not the installer version from https://www.freebsd.org/where/&lt;/div&gt;&lt;/div&gt; ## For a ZFS VM image &lt;p&gt;This will create a template on your PC to run cloud-init from the ZFS VM image that uses as ZFS filesystem, <strong>the most common case.</strong>
+<code># Make a folder for your vms mkdir $HOME/vms cd $HOME/vms # Download standard VM image and unzip it wget https://download.freebsd.org/releases/VM-IMAGES/14.3-RELEASE/amd64/Latest/FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz # Decompress but keeps the original xz -dk FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz # Make the disk slightly bigger mv FreeBSD-14.3-RELEASE-amd64-zfs.qcow2 freebsd14-cloud-init-zfs.qcow2 qemu-img resize freebsd14-cloud-init-zfs.qcow2 10G # Run it with the "default" network to install CloudInit virt-install \ --connect qemu:///system \ --name freebsd-zfs \ --memory 2048 \ --vcpus 2 \ --disk path=freebsd14-cloud-init-zfs.qcow2,format=qcow2,bus=virtio \ --os-variant freebsd14.0 \ --import \ --network network=maikenet,model=virtio \ --graphics spice`&lt;/pre&gt; ## Now inside the machine &lt;p&gt;The default root user is passwordless so if you use `root` it won't ask for any password, just log you in.
+<code># OPTIONAL: Keyboard to Spanish, symbols are in different places kbdcontrol -l es # Now inside the machine prepare it for cloud-init (as root, no pass) pkg update pkg search cloud-init pkg install -y WHATEVER_VERSION_YOU_GOT_FROM_SEARCH # Now enable it sysrc cloudinit_enable="YES" poweroff # On your host system: Back it up xz -k freebsd14-cloud-init-zfs.qcow2 `&lt;/pre&gt; # Using your own templates to launch custom-made VMs easily ## Create a cloud-init config</code></code></p>
+<ol>
+  <li>Create this file as <code class="language-plaintext highlighter-rouge">user-data.yaml</code> on the <code class="language-plaintext highlighter-rouge">$HOME/vms</code> folder</li>
+</ol>
+<pre><code>#cloud-config hostname: freebsd1 # Needs to match the one assigned in the network users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false # Use mkpasswd -m sha-512 to get this passwd: "$6$L80IKTwDwcf......sH0" ssh_authorized_keys: - ssh-ed25519 AAAAC3Nz.....maikel.dev ssh_pwauth: True keyboard: layout: es packages: - fish - sudo - mkpasswd - neovim - ncdu - git runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # OPTIONAL: Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # OPTIONAL: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish # OPTIONAL: Auto resize main partition - gpart recover vtbd0 - gpart resize -i 4 vtbd0 - zpool online -e zroot /dev/vtbd0p4 `&lt;/pre&gt;
+1. Use this command to create a CD-ROM ISO to launch it from. Assuming you're in `$HOME/vms`
+<pre><code>cloud-localds seed.iso user-data.yaml `&lt;/pre&gt; # Creating the final machine using the ZFS image <p>The instructions are prety much the same for a UFS image you just change the filenames.
+<code># Access the folder of your vms cd $HOME/vms # Decompress the fresh cloud-init-enabled version we created before. xz -dk freebsd14-cloud-init-zfs.qcow2.xz # Rename it to something more useful to distinguish it from the template cp freebsd14-cloud-init-zfs.qcow2 freebsd1.qcow2 # Create the seed ISO from user-data.yaml in case you've made any changes. cloud-localds freebsd1.iso user-data.yaml # Make the disk bigger here it is set to 20G but you can do whatever size you like qemu-img resize freebsd1.qcow2 50G # Install notice here we use the MAC assigned in the network and the hostname also assigned in the network, they both have to match. virt-install \ --connect qemu:///system \ --name freebsd1 \ --memory 4096 \ --vcpus 4 \ --disk path=freebsd1.qcow2,format=qcow2,bus=virtio \ --disk path=freebsd1.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --network network=maikenet,model=virtio,mac=52:54:00:6b:3c:58 \ --graphics spice \ --noautoconsole # Added this here because I prefer to let it run first. # To view virt-viewer freebsd-new`&lt;/pre&gt;<p>And that's it, your system should be up and running ready to be used and because you assigned it the name and MAC expected by your new network, it should stick to the IP you see it with. 🥳
+![Image](/assets/images/2025/09/image-4.png)
+# Extra steps for your own sanity
+
+## Resizing the partition to use all available space (ZFS)
+
+If you want your system to use all the available space in your qcow2 file after resizing it you'll need some extra steps. This can all be added on the user-data template though which I did so you don't need to.
+<code># Ensure vtbd0 is the name of it gpart show # Reize partition gpart recover vtbd0 # Get the lice or number of partition, in my case is 4 gpart show # This is assumign the slice is 4 gpart resize -i 4 vtbd0 # Again the end "p4" depends on the slice number zpool online -e zroot /dev/vtbd0p4 `&lt;/pre&gt;<p>That's all your machine is ready to use. If you ever need to change the size of the qcow2 file repeat those steps.
+
+## Autostart this machine with NixOS with Nixos
+
+Run on the host machine
+<code>virsh --connect qemu:///system autostart freebsd1`&lt;/pre&gt; ## Detach cloud-init disk just in case <p>Normally cloud-init runs only once, but just to be sure on the host machine
+<code># To find the name of the ISO device, in my case "hda" virsh --connect qemu:///system virsh domblklist freebsd1 # To both remove it and ensure it never comes back after reboot virsh --connect qemu:///system change-media freebsd1 hda --eject --config --live `&lt;/pre&gt; ## SSH-ing in made easier with Fish shell functions <p>I don't want to have to finding the IP before I connect so I wrote this fish shell function stored in `~/.config/fish/functions/sshvm` which uses the global variable `$LOCAL_VM_KEY` as path to the private key used to log into the FreeBSD VM. I defined that key in `~/.config/fish/conf.d/variables`
+<code>function sshvm # This gets the IP of the server with the given name set ip (virsh --connect qemu:///system domifaddr $argv[1] | string match -r '\d+\.\d+\.\d+\.\d+' | head -n1) # This connects to the server using the private key ssh -i $LOCAL_VM_KEY maikel@$ip end `&lt;/pre&gt;<p>Then I just use
+<code>sshvm freebsd-new `&lt;/pre&gt;<p>Or whatever name I gave to that virtual machine.
+
+## Add VMs quickly to the network to get fixed IP
+
+With this fish function you recreate the network to assign a fixed IP to any new machine by passing it the hostname you'll be using on it, you should save the resulting MAC address.
+
+`function add_vm_to_network if test (count $argv) -lt 1 echo "Usage: add_vm_to_network &lt;hostname&gt;" return 1 end set vmname $argv[1] set net maikenet # Dump network XML set netxml (mktemp) virsh -c qemu:///system net-dumpxml $net &gt; $netxml # Find the highest existing IP set last_ip (grep -oP "ip='\K[0-9.]+" $netxml | sort -t. -k4,4n | tail -n1) if test -z "$last_ip" echo "No static host entries found, starting at 192.168.100.100" set new_ip 192.168.100.100 else set base (echo $last_ip | cut -d. -f1-3) set last_octet (echo $last_ip | cut -d. -f4) set new_octet (math $last_octet + 1) set new_ip "$base.$new_octet" end # Generate a random MAC (QEMU OUI prefix) set mac 52:54:00:(openssl rand -hex 3 | sed 's/\(..\)/\1:/g; s/:$//') # Insert new host entry before &lt;/network&gt; sed -i "/&lt;\/dhcp&gt;/i \ \ \ \ \ \ &lt;host mac='$mac' name='$vmname' ip='$new_ip'/&gt;" $netxml # Apply the new network XML virsh -c qemu:///system net-define $netxml virsh -c qemu:///system net-destroy $net virsh -c qemu:///system net-start $net virsh -c qemu:///system net-autostart $net echo "✅ Added host:" echo " Hostname: $hostname" echo " MAC: $mac" echo " IP: $new_ip" rm $netxml end # Usage: add_vm_to_network freebsd3 `&lt;/pre&gt; ## Creating machines quickly with Fish function <p>This requires first a few manual steps but simplifies creation
+
+1. Either use the previous fish function to get the MAC or manually edit the network, destroy and relaunch with virsh net-edit maikenet to add a MAC and the hostname.
+2. edit the $vm-user-data.yaml file for that machine, setting the hostname. For example if the machine is going to be called freebsd3 you should first run
+
+<code># Previous steps # Add VM to the network and annotate the MAC add_vm_to_network freebsd3 # Copy user-data.yaml into VM-user-data.yaml cp $HOME/vms/user-data.yaml $HOME/vms/freebsd3-user-data.yaml # Edit the resulting file to have in hostname the machine hostname you desire vi $HOME/vms/freebsd3-user-data.yaml `&lt;/pre&gt;<p>Then create the machine
+<code>function createvm if test (count $argv) -lt 2 echo "Usage: createvm &lt;vm-name&gt; &lt;mac-address&gt;" return 1 end set vm $argv[1] set mac $argv[2] set vm_dir $HOME/vms/in_use/$vm mkdir -p $vm_dir cd $vm_dir echo "Copying template to VM disk..." cp $HOME/vms/freebsd14-cloud-init-zfs.qcow2 $vm.qcow2 echo "Creating seed ISO..." cloud-localds $vm.iso ~/vms/$vm-user-data.yaml echo "Resizing disk..." qemu-img resize $vm.qcow2 50G echo "Launching VM..." virt-install \ --connect qemu:///system \ --name $vm \ --memory 4096 \ --vcpus 4 \ --disk path=$vm.qcow2,format=qcow2,bus=virtio \ --disk path=$vm.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --network network=maikenet,model=virtio,mac=$mac \ --graphics spice \ --noautoconsole echo "VM $vm launched." end # eg: createvm freebsd2 52:54:00:6c:3c:58 `&lt;/pre&gt; ## Destroying machines quickly with Fish shell <pre><code>function destroyvm if test (count $argv) -lt 1 echo "Usage: destroyvm &lt;vm-name&gt;" return 1 end set vm $argv[1] echo "Destroying VM $vm..." virsh -c qemu:///system destroy $vm echo "Undefining VM $vm..." virsh -c qemu:///system undefine $vm set disk $HOME/vms/in_use/$vm/$vm.qcow2 set seed $HOME/vms/in_use/$vm/$vm.iso if test -f $disk echo "Deleting disk $disk..." rm -f $disk else echo "Disk $disk not found, skipping." end if test -f $seed echo "Deleting seed $seed..." rm -f $seed else echo "Disk $seed not found, skipping." end end `&lt;/pre&gt; ## Zerotier on creation with self-authorisation <p>This is something I'm experimenting with, installing Zerotier and joining a network are easy steps but I want it to self-authorise too. I want the variables to be fed into the cloud config so I made another fish script. This is my current `$HOME/vms/user-data.yaml` template from where all my machines are created.
+
+You'll notice the addition of a script to run once the machine is up.
+<code>#cloud-config hostname: freebsd1 users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false passwd: "$6$L80IKTw.......sH0" ssh_authorized_keys: - ssh-ed25519 AAAAC3.....el.dev ssh_pwauth: True keyboard: layout: es packages: - fish - sudo - mkpasswd - neovim - ncdu - zerotier - curl - jq write_files: - path: /root/join-network.sh permissions: '0755' content: | #!/bin/sh NWID="111111111111111" &amp;&amp; \ ZT_TOKEN="222222222222" &amp;&amp; \ zerotier-cli join "$NWID" &amp;&amp; \ MEMBER_ID=$(zerotier-cli info | awk '{print $3}') &amp;&amp; \ curl -H "Authorization: token $ZT_TOKEN" -X POST \ "https://api.zerotier.com/api/v1/network/$NWID/member/$MEMBER_ID" \ --data '{"config": {"authorized": true}}' runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # Optional: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish # Auto resize main partition - gpart recover vtbd0 - gpart resize -i 4 vtbd0 - zpool online -e zroot /dev/vtbd0p4 # Zerotier joy - sysrc zerotier_enable="YES" - service zerotier start `&lt;/pre&gt;<p>The function below `clone_user_data VM_NAME` applies the ZT_TOKEN and ZT_NW environment variables to a new user-data.yaml file with the name of the hostname.
+
+Then once the machine is up and running you can just and simply run `/root/join-network.sh` as root to both join and self-authorise zerotier. I tried to do it as part of the cloud-init functions but it breaks, let alone is not something that I always need.
+<code>function clone_user_data if test (count $argv) -ne 1 echo "Usage: clone_user_data &lt;vmname&gt;" return 1 end set NEWVM $argv[1] set BASE "$HOME/vms/user-data.yaml" set OUT "$HOME/vms/$NEWVM-user-data.yaml" if not test -f $BASE echo "Error: base file $BASE does not exist" return 1 end if test -z "$ZT_TOKEN" echo "Error: ZT_TOKEN environment variable not set" return 1 end if test -z "$ZT_NWID" echo "Error: ZT_NWID environment variable not set" return 1 end sed \ -e "s/^hostname:.*/hostname: $NEWVM/" \ -e "s/NWID=\"[0-9]*\"/NWID=\"$ZT_NWID\"/" \ -e "s/ZT_TOKEN=\"[0-9]*\"/ZT_TOKEN=\"$ZT_TOKEN\"/" \ $BASE &gt; $OUT echo "Created config: $OUT" end # Example: clone_user_data freebsd4 # generates a file ~/vms/freebsd-user-data.yaml ready to be used by creatvm`&lt;/pre&gt; ## Installing a desktop environment <p>I used KDE for this experiment, you really just need to read the FreeBSD [Handbook](https://docs.freebsd.org/en/books/handbook/desktop/#desktop-environments) and follow it step by step. I even created its own `desktop-user-data.yaml` file for this one in case I ever need the desktop.
+
+The yaml file for cloudinit
+<code>#cloud-config hostname: desktop users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false passwd: "$6$L80IKTw............osH0" ssh_authorized_keys: - ssh-ed25519 ....... maikel.dev ssh_pwauth: True keyboard: layout: es packages: - fish - sudo - mkpasswd - neovim - ncdu - xorg - kde - sddm runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # Optional: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish # Auto resize main partition - gpart recover vtbd0 - gpart resize -i 4 vtbd0 - zpool online -e zroot /dev/vtbd0p4 # Add KDE - pw groupmod video -m maikel - sysrc dbus_enable="YES" - service dbus start - sysctl net.local.stream.recvspace=65536 - sysctl net.local.stream.sendspace=65536 - sysctl -f /etc/sysctl.conf - sysrc sddm_enable="YES" - sysrc sddm_lang="es_ES" - setxkbmap -layout es - service ssdm start `&lt;/pre&gt;<p>The machine has a few differences, I assigned more total system memory (8GB) and hiked the RAM assigned to the video card too. My mouse is a USB one so only works with that line in input. If yours isn't USB delete that line.
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">The Fish function **createvm **won't work for this because the definition is for a non-GUI machine. But you can use the Fish function **add_vm_to_network** to get the MAC and fix the IP. Since this was a one off, I didn't care about automating it. As soon as I discovered the **hours-long** nightmare that is [installing VSCode in FreeBSD](https://freebsdfoundation.org/resource/how-to-use-vs-code-on-freebsd/) I realised I'm only using it for servers and appliances.</div></div>
+<code>virt-install \ --connect qemu:///system \ --name desktop \ --memory 8192 \ --vcpus 4 \ --disk path=desktop.qcow2,format=qcow2,bus=virtio \ --disk path=desktop.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --video qxl,ram=524288,vram=262144,vgamem=262144 \ --network network=maikenet,model=virtio,mac=52:54:00:6f:3c:58 \ --input type=mouse,bus=usb \ --graphics spice \ --noautoconsole # Added this here because I prefer to let it run first. `&lt;/pre&gt; ## Cleaning up <pre><code># See the machines sudo virsh list --all # The first stops immediately the machine sudo virsh destroy freebsd14 # This second removes it from the pool of VMs of libvirtd sudo virsh undefine frebsd14 # Delete any pre-made seed just in case rm -rf seed.iso `&lt;/pre&gt;<p>
+# Some oddities
+
+These are some painful parts from the process.
+
+### The command `Virt-install` and "~"
+
+I don't know why the path can't interpret "~" hence why I did it all from the `<sub>/vms</sub>`~ folder. In this version I change "~" it to `$HOME` in all scripts for consistency.
+
+### Run without virt-viewer
+
+Sometimes you want to install and see nothing, in those case use
+<code> --graphics spice \ --noautoconsole `&lt;/pre&gt;<p>At the end of the `virt-install` command, this runs the system with graphics enable but doesn't attach any viewer to it.
+</p></code></p></code></pre></code></p></code></p></code></p></code></p></code></pre></code></p></code></p></p></code></p></code></p></code></p></code></p></code></p></code></p></code></pre></code></pre>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="FreeBSD" /><category term="NixOS" /><category term="DevOps" /><category term="virtualization" /><summary type="html"><![CDATA[Update on running FreeBSD from NixOS with extra bits and bloobs. Like running Zerotier and self-authorise, automation of creation, destruction and network configuration, fixing IPs and running KDE.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Running FreeBSD from NixOS using Libvirtd from scratch</title><link href="http://localhost:4000/2025/09/25/running-freebsd-from-nixos-using-libvirtd-from-scratch.html" rel="alternate" type="text/html" title="Running FreeBSD from NixOS using Libvirtd from scratch" /><published>2025-09-25T00:00:00+02:00</published><updated>2025-09-25T00:00:00+02:00</updated><id>http://localhost:4000/2025/09/25/running-freebsd-from-nixos-using-libvirtd-from-scratch</id><content type="html" xml:base="http://localhost:4000/2025/09/25/running-freebsd-from-nixos-using-libvirtd-from-scratch.html"><![CDATA[<p>I use <strong>FreeBSD</strong> for work because my clients deploy servers on it. At home, I have a PC with 32 GB of RAM and use <strong>NixOS</strong>, so I wanted to run FreeBSD locally for quick tests.</p>
+
+<p>My first choice would normally be <strong>VirtualBox</strong>, but on NixOS it’s a pain: every system upgrade forces VirtualBox to be recompiled. Since I upgrade often, that became unmanageable.</p>
+
+<p>People in the fediverse suggested <strong>libvirtd</strong>, so I gave it a try. It’s trickier at first, but once you learn a few commands it’s not bad at all—and in fact, it allows for a lot of automation.</p>
+
+<h1 id="installing-libvirtd">Installing Libvirtd</h1>
+
+<p>In configuration.nix you need to make the following changes.
+<code># Add the user to these groups, internet wisdom is not clear about what exactly is the name of each group. users.users.maikel = { extraGroups = [ "libvirtd", "libvirt", "qemu-libvirtd" ]; }; # Enable libvirtd virtualisation = { libvirtd = { enable = true; qemu.vhostUserPackages = with pkgs; [ virtiofsd ]; }; }; # Add Virt-Manager makes simpler to explore actual configs. programs.virt-manager.enable = true; environment = { systemPackages = with pkgs; [ virt-viewer cloud-utils cloud-init ]; }; `&lt;/pre&gt; # Running commands when using Libvirtd as a system's service &lt;p&gt;Despite all the changes there, I still need to prepend all virsh and virt-viewer commands with
+<code># For Virsh virsh -c qemu:///system # For Virt-viewer virt-viewer -c qemu:///system`&lt;/pre&gt;&lt;p&gt;Either that or put sudo ahead of all virsh commands. Since I'm lazy I prefer to do what works every time and since I use Fish shell, I just added to `~/.config/fish/conf.d/abbreviations.fish`
+<code>abbr --add virt-viewer "virt-viewer -c qemu:///system" abbr --add virsh "virsh -c qemu:///system" `&lt;/pre&gt;&lt;p&gt;That way every time I write either it auto completes so assume every command below takes this into account. If you don't want to autocomplete either use sudo (for virsh) or the whole `-c qemu:///system` for virt-viewer (can't use sudo, you need the display). I like abbr instead of alias because with abbr **I don't actually forget** the full command ever. It's shown to me every time.</code></code></code></p>
+
+<h1 id="configuring-the-network">Configuring the Network</h1>
+
+<p>By default there’s nothing running network wise. So you need to start the default network with
+<code># Starts it if you can't see any new networks in ifconfig virsh net-start default # So it autostarts virsh net-autostart default `&lt;/pre&gt;&lt;p&gt;That will run the virtual network every time the PC reboots.</code></p>
+
+<h1 id="creating-a-cloud-init-enabled-image">Creating a cloud-init enabled image</h1>
+<div class="kg-card kg-callout-card kg-callout-card-blue"><div class="kg-callout-emoji">💡</div><div class="kg-callout-text">**IMPORTANT**
+
+Always download the VM version, not the installer version from https://www.freebsd.org/where/</div></div>
+<h2 id="for-standard-vm-image-ufs">For standard VM image (UFS)</h2>
+
+<p>This will create a template on your PC to run cloud-init from the standard VM image that uses as filesystem UFS, <strong>if you need ZFS move onto the next step.</strong>
+<code># Make a folder for your vms mkdir ~/vms cd ~/vms # Download standard VM image and unzip it wget https://download.freebsd.org/releases/VM-IMAGES/14.3-RELEASE/amd64/Latest/FreeBSD-14.3-RELEASE-amd64.qcow2.xz # Decompress but keeps the original xz -dk FreeBSD-14.3-RELEASE-amd64.qcow2.xz # Make the disk slightly bigger mv FreeBSD-14.3-RELEASE-amd64.qcow2 freebsd14-cloud-init.qcow2 qemu-img resize freebsd14-cloud-init.qcow2 10G # Run it with the "default" network to install CloudInit virt-install \ --connect qemu:///system \ --name freebsd14 \ --memory 2048 \ --vcpus 2 \ --disk path=./freebsd14-cloud-init.qcow2,format=qcow2,bus=virtio \ --os-variant freebsd14.0 \ --import \ --network network=default,model=virtio \ --graphics spice `&lt;/pre&gt; ## Now inside the machine &lt;p&gt;The default root user is passwordless so if you use "root" it won't ask for any password, just log you in.
+<code># OPTIONAL: Keyboard to Spanish, symbols are in different places kbdcontrol -l es # Now inside the machine prepare it for cloud-init (as root, no pass) pkg update pkg search cloud-init pkg install -y WHATEVER_VERSION_YOU_GOT_FROM_SEARCH # Now enable it sysrc cloudinit_enable="YES" poweroff # On your host system: Back it up xz -k freebsd14-cloud-init.qcow2 `&lt;/pre&gt; ## For a ZFS VM image &lt;p&gt;This will create a template on your PC to run cloud-init from the ZFS VM image that uses as filesystem ZFS, **the most common case.**
+<code># Make a folder for your vms mkdir ~/vms cd ~/vms # Download standard VM image and unzip it wget https://download.freebsd.org/releases/VM-IMAGES/14.3-RELEASE/amd64/Latest/FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz # Decompress but keeps the original xz -dk FreeBSD-14.3-RELEASE-amd64-zfs.qcow2.xz # Make the disk slightly bigger mv FreeBSD-14.3-RELEASE-amd64-zfs.qcow2 freebsd14-cloud-init-zfs.qcow2 qemu-img resize freebsd14-cloud-init-zfs.qcow2 10G # Run it with the "default" network to install CloudInit virt-install \ --connect qemu:///system \ --name freebsd-zfs \ --memory 2048 \ --vcpus 2 \ --disk path=./freebsd14-cloud-init-zfs.qcow2,format=qcow2,bus=virtio \ --os-variant freebsd14.0 \ --import \ --network network=default,model=virtio \ --graphics spice `&lt;/pre&gt; ## Now inside the machine &lt;p&gt;The default root user is passwordless so if you use "root" it won't ask for any password, just log you in. This is pretty much the same as with UFS. Only changes the file you back up.
+<code># OPTIONAL: Keyboard to Spanish, symbols are in different places kbdcontrol -l es # Now inside the machine prepare it for cloud-init (as root, no pass) pkg update pkg search cloud-init pkg install -y WHATEVER_VERSION_YOU_GOT_FROM_SEARCH # Now enable it sysrc cloudinit_enable="YES" poweroff # On your host system: Back it up xz -k freebsd14-cloud-init-zfs.qcow2 `&lt;/pre&gt; # Using your own templates to launch custom-made VMs quickly ## Create a cloud-init config</code></code></code></code></p>
+<ol>
+  <li>Create this file as <code class="language-plaintext highlighter-rouge">user-data.yaml</code> on the <code class="language-plaintext highlighter-rouge">~/vms</code> folder</li>
+</ol>
+<pre><code>#cloud-config hostname: freebsd users: - name: maikel shell: /usr/local/bin/fish sudo: ALL=(ALL) NOPASSWD:ALL lock_passwd: false # Use mkpasswd to get this passwd: "$6$L80IKTw......dbZewtsw5FjosH0" # Your public key for SSH ssh_authorized_keys: - ssh-ed25519 AAAAC3NzaC1.... ...@maikel.dev ssh_pwauth: True keyboard: layout: es # Any packages you need in FreeBSD go here packages: - fish - sudo - mkpasswd - neovim - git runcmd: # Enable SSH - sysrc sshd_enable=YES - service sshd start # Set Spanish keyboard permanently - sysrc keymap="es.kbd" - service syscons restart # Optional: set root and maikel shells to fish explicitly - pw usermod root -s /usr/local/bin/fish - pw usermod maikel -s /usr/local/bin/fish `&lt;/pre&gt;
+1. Use this command to create a CD-ROM ISO to launch it from. Assuming you're in `~/vms`
+<pre><code>cloud-localds seed.iso user-data.yaml `&lt;/pre&gt; # Creating the final machine using the ZFS image <p>The instructions are prety much the same for a UFS image you just change the filenames.
+<code># Access the folder of your vms cd ~/vms # Decompress the fresh cloud-init-enabled version we created before. xz -dk freebsd14-cloud-init-zfs.qcow2.xz # Rename it to something more useful to distinguish it from the template cp freebsd14-cloud-init-zfs.qcow2 freebsd14-ready.qcow2 # Create the seed ISO from user-data.yaml in case you've made any changes. cloud-localds seed.iso user-data.yaml # Make the disk bigger here it is set to 20G but you can do whatever size you like qemu-img resize freebsd14-ready.qcow2 20G # Install virt-install \ --connect qemu:///system \ --name freebsd-new \ --memory 2048 \ --vcpus 4 \ --disk path=freebsd14-ready.qcow2,format=qcow2,bus=virtio \ --disk path=seed.iso,device=cdrom \ --os-variant freebsd14.0 \ --import \ --network network=default,model=virtio \ --graphics spice \ --noautoconsole # Added this here because I prefer to let it run first. # To view virt-viewer freebsd-new `&lt;/pre&gt;<p>And that's it, your system should be up and running ready to be used. 🥳
+![Image](/assets/images/2025/09/image-4.png)
+# Extra steps for your own sanity
+
+## Resizing the partition to use all available space (ZFS)
+
+If you want your system to use all the available space in your qcow2 file after resizing it you'll need some extra steps.
+<code># Ensure vtbd0 is the name of it gpart show # Reize partition gpart recover vtbd0 # Get the lice or number of partition, in my case is 4 gpart show # This is assumign the slice is 4 gpart resize -i 4 vtbd0 # Again the end "p4" depends on the slice number zpool online -e zroot /dev/vtbd0p4 `&lt;/pre&gt;<p>That's all your machine is ready to use. If you ever need to change the size of the qcow2 file repeat those steps.
+
+## Autostart this machine with NixOS with Nixos
+
+Run on the host machine
+<code>virsh --connect qemu:///system autostart freebsd-new `&lt;/pre&gt; ## Detach cloud-init disk just in case <p>Normally cloud-init runs only once, but just to be sure on the host machine
+<code># To find the name of the ISO device, in my case "hda" sudo virsh domblklist freebsd-new # To both remove it and ensure it never comes back after reboot virsh --connect qemu:///system change-media freebsd-new hda --eject --config --live `&lt;/pre&gt; ## SSH-ing in made easier with Fish shell functions <p>I don't want to have to finding the IP before I connect so I wrote this fish shell function stored in `~/.config/fish/functions/sshvm` which uses the global variable `$LOCAL_VM_KEY` as path to the private key used to log into the FreeBSD VM. I defined that key in `~/.config/fish/conf.d/variables`
+<code>function sshvm # This gets the IP of the server with the given name set ip (virsh --connect qemu:///system domifaddr $argv[1] | string match -r '\d+\.\d+\.\d+\.\d+' | head -n1) # This connects to the server using the private key ssh -i $LOCAL_VM_KEY maikel@$ip end `&lt;/pre&gt;<p>Then I just use
+<code>sshvm freebsd-new `&lt;/pre&gt;<p>Or whatever name I gave to that virtual machine.
+
+## Cleaning up
+<code># See the machines sudo virsh list --all # The first stops immediately the machine sudo virsh destroy freebsd14 # This second removes it from the pool of VMs of libvirtd sudo virsh undefine frebsd14 # Delete any pre-made seed just in case rm -rf seed.iso `&lt;/pre&gt; # Some oddities <p>These are some painful parts from the process.
+
+### The command `Virt-install` and "~"
+
+I don't know why the path can't interpret "~" hence why I did it all from the `~/vms` folder
+
+### Run without virt-viewer
+
+Sometimes you want to install and see nothing, in those case use
+<code> --graphics spice \ --noautoconsole `&lt;/pre&gt;<p>At the end of the `virt-install` command, this runs the system with graphics enable but doesn't attach any viewer to it.
+</p></code></p></code></p></code></p></code></p></code></p></code></p></code></p></code></p></code></pre></code></pre>]]></content><author><name>Maikel Frias Mosquea</name></author><category term="FreeBSD" /><category term="NixOS" /><category term="DevOps" /><category term="virtualization" /><summary type="html"><![CDATA[How to run FreeBSD alongisde Nixos on the same computer for quick tests using libvirtd to stop having recompilation issues of VirtualBox]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/unsplash-1657724576853.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

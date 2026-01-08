@@ -1,0 +1,100 @@
+[
+  
+  {
+    "title": "Living Out Loud With ADHD – Episode 3: Elvanse long-term",
+    "url": "/2026/01/02/living-out-loud-with-adhd-episode-3-elvanse-long-term.html",
+    "date": "02 Jan 2026",
+    "excerpt": "My experience with ADHD and what has been working so far ever since starting on medication. This episode is about the usage of Elvanse long-term. ",
+    "content": "Some necesary backgroundQuick mandatory reminder 👇⚠️    This is not medical information, nor am I a trained physician or any kind of expert in ADHD. I’m just another ADHDer untangling the data I got and detailing my own personal experience and effects (if any) of meds.    If you think any of this relates to you, don’t take it on your own hands, discuss it with your doctor. If any of it particularly helped you or you think I might be on the wrong track feel free to let me know. Interactions ar..."
+  },
+  
+  {
+    "title": "I Tried Cursor and I'm Not Worried",
+    "url": "/2026/01/02/i-tried-cursor-and-im-not-worried.html",
+    "date": "02 Jan 2026",
+    "excerpt": "I tested Cursor, for prototyping ideas to just figure if they are feasible it works, yet for production level it doesn’t. Context is their kryptonite. Our jobs are VERY MUCH safe. ",
+    "content": "The image I’ve chosen from Unsplash for this article is no accident at all, keep reading and you’ll figure out why.I recently survived showing someone sparkr_private, a repo containing a prototype version of Sparkr I built in React Native within a week. The goal wasn’t to build production code. It was to rapidly test feasibility of ideas, disposing of concepts quickly just to see what could actually be possible based on ideas in my head.The result? Shameful code. Heavily written with the help..."
+  },
+  
+  {
+    "title": "Particularidades del mercado inmobiliario de A Coruña",
+    "url": "/2025/10/21/particularidades-del-mercado-inmobiliario-de-a-coruna.html",
+    "date": "21 Oct 2025",
+    "excerpt": "Encontré una tésis de 400 y pico páginas sobre la influencia de Inditext en el mercado inmobiliario de Coruña pero lo mas maravilloso de la tesis no es inditex sino como desgrana en 400 páginas las particularidades de esta ciudad. Aqui un resumen. ",
+    "content": "1.Modelo urbano e histórico  Desde los años 80, A Coruña presenta una división socioespacial marcada:Centro histórico y Ensanche → clases medias-altas y procesos de rehabilitación.  Barrios periféricos o satélites (Novo Mesoiro, Matogrande, Someso, Los Rosales, Ventorrillo, Adormideras) → creados en los 90-2000 bajo el mandato de Francisco Vázquez, con carencias de servicios, movilidad y cohesión urbana.&lt;/li&gt;&lt;li&gt;La expansión periférica se hizo a costa de abandonar el centro, lo qu..."
+  },
+  
+  {
+    "title": "Loading all environment variables from Bitwarden on terminal launch without noticeable lag",
+    "url": "/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html",
+    "date": "21 Oct 2025",
+    "excerpt": "Solving the major issue of Bitwarden being incredibly slow to load environment variables by combining rbw, jq and fish shell",
+    "content": "The problem I’m trying to solveIf you use Bitwarden you might have tried using Bitwarden CLI which is a nightmare of a tool clearly not fit for purpose.The main problem with it is that it takes between 1 to 5 seconds for every value you retrieve. The secondary problem is that unlike any other official Bitwarden implementation it is impossible to remain logged in without writing your own scripts to store BW_SESSION (logging with api credentials), pass it between shell sessions or make it unive..."
+  },
+  
+  {
+    "title": "A Coruña, primera zona tensionada de Galicia: guía práctica de precios, contratos y obligaciones",
+    "url": "/2025/10/21/a-coruna-primera-zona-tensionada-de-galicia-guia-practica-de-precios-contratos-y-obligaciones.html",
+    "date": "21 Oct 2025",
+    "excerpt": "En este artículo te explico, de forma clara y práctica, qué significa exactamente que A Coruña sea zona tensionada, qué limitaciones introduce y cómo puede afectarte tanto si ya tienes una vivienda alquilada como si planeas ponerla en el mercado.",
+    "content": "A Coruña se ha convertido en la primera ciudad gallega declarada zona de mercado residencial tensionado por el alto precio del alquiler.La medida, enmarcada en la Ley 12/2023 por el Derecho a la Vivienda, busca frenar la escalada de precios y mejorar el acceso a la vivienda, especialmente en barrios donde el coste del alquiler se ha disparado por encima del 30 % de los ingresos familiares.A partir de ahora, inquilinos y propietarios deberán adaptarse a un nuevo marco legal que incluye un índi..."
+  },
+  
+  {
+    "title": "Using HAProxy for Ngrok-style domain tunneling  in Nixos with SSL self-renewal enabled",
+    "url": "/2025/10/14/using-haproxy-for-ngrok-style-domain-tunneling-in-nixos-with-ssl-self-renewal-enabled.html",
+    "date": "14 Oct 2025",
+    "excerpt": "Another way to do the same tunneling without Ngrok or any paid service,  but this time with autorenewal of the SSL and in a more robust and simple manner. ",
+    "content": "I love accessing computers from elsewhere yet hate Ngrok, Tailscale and Zrok with passion so I made a post not long ago about how to self-host Pagekite to be able to use your own domain names for this. The problem is how ugly it made my configuration.nix files and how I didn’t manage to write an auto-renewal script. Today I’ve figured how using ACME. HAProxy seems to have the same issue of wanting a single file for all keys but I managed to bypass that one here.Configuration.nix# Assuming con..."
+  },
+  
+  {
+    "title": "Pagekite with Custom Domain in Nixos, tunneling without Ngrok for free",
+    "url": "/2025/10/09/pagekite-with-custom-domain-in-nixos-tunneling-without-ngrok-for-free.html",
+    "date": "09 Oct 2025",
+    "excerpt": "I got tired of Ngrok, Zrok, Tailscale and all of these options that charge you absurds amounts of money for just letting you use your own domain names in a web tunnel to try APIs or development. So I made my own derivation in NixOS to run Pagekite. ",
+    "content": "There are instructions all over on how to configure Pagekite on Ubuntu but none on NixOS there’s not even a derivation of it so I made one. I’m tired of Zrok, Ngrok, Tailscale and all of their offerings that are either closed-source or impossibly hard to install or maintain. Let alone **to use a custom domain **you’ll have to pay north of 20 USD per month.I just want to be able to use my own domains, that’s all. I don’t need any of the other fancy stuff so even though Pagekite is a lot cheape..."
+  },
+  
+  {
+    "title": "Running FreeBSD from NixOS using Libvirtd from scratch: v3.0",
+    "url": "/2025/09/27/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0-2.html",
+    "date": "27 Sep 2025",
+    "excerpt": "In version 3 reconfigured the network, simplified the scripts, and used SED extensively to make the template even more useful. ",
+    "content": "💡This is the third version of this post as I figure how to remove complexity by going deeper into the docs and finding **the right way **to get VMs accessible by hostname. **New in this version vs v.2.0**1. Removed **add_vm_to_network** Fish-shell function since it is no longer necesary. 2. Fixed **create_vm **Fish-shell function since now it doesn't need MACs. 3. Simplified network edition. 4. Edited configuration.nix to include **nss**, which is what made everything simpler. Since now it re..."
+  },
+  
+  {
+    "title": "Running FreeBSD from NixOS using Libvirtd from scratch: v2.0",
+    "url": "/2025/09/26/running-freebsd-from-nixos-using-libvirtd-from-scratch-v2-0.html",
+    "date": "26 Sep 2025",
+    "excerpt": "Update on running FreeBSD from NixOS with extra bits and bloobs. Like running Zerotier and self-authorise, automation of creation, destruction and network configuration, fixing IPs and running KDE. ",
+    "content": "💡This is the second version of this post as I added a lot of Fish shell automation and discovered how to streamline lots of processed from yesterday to today so added a lot of fish functions. **New in this version**1. I removed UFS images to avoid duplication, assume ZFS filesystem. 2. I added Fish-shell scripts to automate creation, destruction and network config. 3. I show you how to fix the IP to VMs using their MACs and hostnames. 4. I show you how to run KDE using cloud-init to configure..."
+  },
+  
+  {
+    "title": "Running FreeBSD from NixOS using Libvirtd from scratch",
+    "url": "/2025/09/25/running-freebsd-from-nixos-using-libvirtd-from-scratch.html",
+    "date": "25 Sep 2025",
+    "excerpt": "How to run FreeBSD alongisde Nixos on the same computer for quick tests using libvirtd to stop having recompilation issues of VirtualBox",
+    "content": "I use FreeBSD for work because my clients deploy servers on it. At home, I have a PC with 32 GB of RAM and use NixOS, so I wanted to run FreeBSD locally for quick tests.My first choice would normally be VirtualBox, but on NixOS it’s a pain: every system upgrade forces VirtualBox to be recompiled. Since I upgrade often, that became unmanageable.People in the fediverse suggested libvirtd, so I gave it a try. It’s trickier at first, but once you learn a few commands it’s not bad at all—and in fa..."
+  },
+  
+  {
+    "title": "Living Out Loud With ADHD – Episode 2: Elvanse 2nd attempt",
+    "url": "/2025/09/19/living-out-loud-with-adhd-episode-2-elvanse-2nd-attempt.html",
+    "date": "19 Sep 2025",
+    "excerpt": "My experience with ADHD and what has been working so far ever since starting on medication. This episode is about the usage of Elvanse long-term. ",
+    "content": "Some necesary backgroundQuick mandatory reminder 👇⚠️**This is not medical information, **nor am I a trained physician or any kind of expert in ADHD. I'm just another ADHDer untangling the data I got and detailing my own personal experience and effects (if any) of meds. If you think any of this relates to you, don't take it on your own hands, discuss it with your doctor. If any of it particularly helped you or you think I might be on the wrong track feel free to let me know. Interactions are *..."
+  },
+  
+  {
+    "title": "Living Out Loud With ADHD – Episode 1: A very thorough Introduction",
+    "url": "/2025/08/18/adhd-changes-ch-1-week-34.html",
+    "date": "18 Aug 2025",
+    "excerpt": "My experience with ADHD and what has been working so far ever since starting on medication. ",
+    "content": "Quick mandatory reminder 👇⚠️**This is not medical information, **nor am I a trained physician or any kind of expert in ADHD. I'm just another ADHDer untangling the data I got and detailing my own personal experience and effects (if any) of meds. If you think any of this relates to you, don't take it on your own hands, discuss it with your doctor. If any of it particularly helped you or you think I might be on the wrong track feel free to let me know. Interactions are **encouraged**.Background..."
+  }
+  
+]
+

@@ -1,0 +1,19 @@
+current directory: /home/maikel/code/jekyllsite/vendor/cache/ruby/3.3.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+/nix/store/0akh4i9af1sxvdn439mmx8iafac8cns5-ruby-3.3.10/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/maikel/code/jekyllsite/vendor/cache/ruby/3.3.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20260108-612365-tokjhu sitelibdir\=./.gem.20260108-612365-tokjhu clean
+
+current directory: /home/maikel/code/jekyllsite/vendor/cache/ruby/3.3.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20260108-612365-tokjhu sitelibdir\=./.gem.20260108-612365-tokjhu
+compiling ruby_http_parser.c
+compiling ryah_http_parser.c
+linking shared-object ruby_http_parser.so
+
+current directory: /home/maikel/code/jekyllsite/vendor/cache/ruby/3.3.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20260108-612365-tokjhu sitelibdir\=./.gem.20260108-612365-tokjhu install
+install -c -p -m 755 ruby_http_parser.so ./.gem.20260108-612365-tokjhu
+
+current directory: /home/maikel/code/jekyllsite/vendor/cache/ruby/3.3.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20260108-612365-tokjhu sitelibdir\=./.gem.20260108-612365-tokjhu clean

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Loading all environment variables from Bitwarden on terminal launch without noticeable lag - Maikelology</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Loading all environment variables from Bitwarden on terminal launch without noticeable lag | Maikelology</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Loading all environment variables from Bitwarden on terminal launch without noticeable lag" />
+<meta name="author" content="Maikel Frias Mosquea" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Solving the major issue of Bitwarden being incredibly slow to load environment variables by combining rbw, jq and fish shell" />
+<meta property="og:description" content="Solving the major issue of Bitwarden being incredibly slow to load environment variables by combining rbw, jq and fish shell" />
+<link rel="canonical" href="http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html" />
+<meta property="og:url" content="http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html" />
+<meta property="og:site_name" content="Maikelology" />
+<meta property="og:image" content="http://localhost:4000/assets/images/unsplash-1614064641938.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-10-21T00:00:00+02:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="http://localhost:4000/assets/images/unsplash-1614064641938.jpg" />
+<meta property="twitter:title" content="Loading all environment variables from Bitwarden on terminal launch without noticeable lag" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Maikel Frias Mosquea"},"dateModified":"2025-10-21T00:00:00+02:00","datePublished":"2025-10-21T00:00:00+02:00","description":"Solving the major issue of Bitwarden being incredibly slow to load environment variables by combining rbw, jq and fish shell","headline":"Loading all environment variables from Bitwarden on terminal launch without noticeable lag","image":"http://localhost:4000/assets/images/unsplash-1614064641938.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html"},"url":"http://localhost:4000/2025/10/21/loading-all-environment-variables-from-bitwarden-on-terminal-launch-without-noticeable-lag.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Maikelology" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrapper">
+        <nav class="site-nav">
+          <a href="/">Home</a>
+          <a href="/categories/">Categories</a>
+          <a href="/about/">About</a>
+        </nav>
+        <a class="site-title" href="/">Maikelology</a>
+        <a href="/search/" class="search-button" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 19L14.65 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="wrapper">
+        <article class="post">
+  
+  <div class="post-featured-image">
+    <img src="/assets/images/unsplash-1614064641938.jpg" alt="Loading all environment variables from Bitwarden on terminal launch without noticeable lag">
+  </div>
+  
+  
+  <header class="post-header">
+    <h1 class="post-title">Loading all environment variables from Bitwarden on terminal launch without noticeable lag</h1>
+    
+    <p class="post-excerpt">Solving the major issue of Bitwarden being incredibly slow to load environment variables by combining rbw, jq and fish shell</p>
+    
+    <div class="post-meta">
+      <span class="post-author">Maikel Frias Mosquea</span>
+      <span class="post-date">21 Oct 2025</span>
+      
+      
+      
+      
+      <span class="post-reading-time">7 min read</span>
+      
+      
+    </div>
+  </header>
+
+  <div class="post-content">
+    <h1 id="the-problem-im-trying-to-solve">The problem I’m trying to solve</h1>
+
+<p>If you use Bitwarden you might have tried using <a href="https://bitwarden.com/help/cli/">Bitwarden CLI</a> which is a nightmare of a tool clearly not fit for purpose.</p>
+
+<p>The main problem with it is that it takes between 1 to 5 seconds for every value you retrieve. The secondary problem is that unlike any other official Bitwarden implementation it is impossible to remain logged in without writing your own scripts to store BW_SESSION (logging with api credentials), pass it between shell sessions or make it universal and still make it so that it tests it works and relogs again if the session token has expired. Considering this again costs between 1 to 5 seconds it is too much time to waste whenever you open a new terminal.</p>
+
+<p>I use <a href="https://fishshell.com/">Fish shell</a>, it’s been my favourite shell for more than ten years, it does stuff that all other shells should be doing now without plugins required. In Fish shell when you make a universal environment variable with <code class="language-plaintext highlighter-rouge">set -U VARIABLE</code>, it doesn’t magically get into the ether or stored in memory, it gets writen on the filesystem on <code class="language-plaintext highlighter-rouge">$HOME/.config/fish/fish_variables</code> and I definitely don’t want that there.</p>
+
+<p>So we have two problems, on one side the official bitwarden cli takes ages with any command, and on the other side I don’t want to keep the session alive by writing the token to a file anywhere on my system.</p>
+
+<h1 id="rbw-entered-the-room">RBW entered the room</h1>
+
+<p>The program <code class="language-plaintext highlighter-rouge">rbw</code> is a command-line tool that does the same job as Bitwarden-CLI albeit very **very **differently. To begin with the commands are not the same, and the way you search for stuff is not the same either. But the most important value of <code class="language-plaintext highlighter-rouge">rbw</code> is that it maintains the connection logged unlike the official CLI tool.</p>
+
+<p>It has a small issue, which is that it doesn’t accept <a href="https://github.com/doy/rbw/issues/292#issuecomment-3425564942">Webauth/FIDO2 as 2FA right now</a> but you can bypass this issue enabling any of the other accepted 2FA ways. In fact I enabled TOTP and it worked beautifully, I was asked for the temporal number combo only once the first time. You can use bitwarden itself as TOTP generator for this since you already have other login mechanisms for it.</p>
+
+<p>That done, one problem was solved, login with <code class="language-plaintext highlighter-rouge">rbw</code> is very easy after installing it, if you use Bitwarden’s official vault, same as I do, do not forget the <code class="language-plaintext highlighter-rouge">register</code> command as explained in the <a href="https://github.com/doy/rbw">rbw repo</a> also if you use Nixos add <code class="language-plaintext highlighter-rouge">pinsentry-tty</code> to your packages, not <code class="language-plaintext highlighter-rouge">pinsentry</code> not any GUI version, you want the one for the terminal . Then do:
+<code># To configure it rbw config set email your@ema.il # Lock timeout in seconds, I prefer 16 hours, covers the time I'm awake rbw config set lock_timeout $(math "60*60*16") # To log in rbw login `&lt;/pre&gt;&lt;p&gt;And that's it. You don't need to do anything else. Any changes in config will ask you to login again the next time you try to get anything out of Bitwarden. With this we've solved the second problem, keeping environment variables anywhere on our system to stay connected.</code></p>
+
+<h1 id="next-issue-rbw-speed-has-limits">Next issue: RBW speed has limits</h1>
+
+<p>So imagine I want to set up a function called <code class="language-plaintext highlighter-rouge">load_bitwarden_vars</code> that I call at the very end of <code class="language-plaintext highlighter-rouge">config.fish</code> so something like this
+<code>function load_bitwarden_vars set -gx GITHUB_CLIENT_ID $(rbw get github -f client_id) set -gx GITHUB_CLIENT_SECRET $(rbw get github -f client_secret) set -gx ZT_TOKEN $(rbw get zerotier -f token) set -gx ZT_NWID $(rbw get zerotier -f network_id) end`&lt;/pre&gt;&lt;p&gt;The `rbw` tool has the advantage over `bw` that it is a lot faster retrieving data, milliseconds, not seconds. But the more calls you do to it during start up of fish shell the slower it gets for you to see the shell prompt whenever you open a window. This is unwieldly. I don't have 4 vars, I have plenty more of them. After filling up my `load_bitwarden_vars.fish` file containing the function this took a very **unacceptable **long time.</code></p>
+
+<p>I came up with the idea of putting each var directly as an alias or abbreviation of the tool it uses them. So, e.g: vault became either
+<code># option 1 abb --add vault "TOKEN=$(rbw get...) vault" # option 2 alias vault "TOKEN=$(rbw get...) /run/current-system/sw/bin/vault"`&lt;/pre&gt;&lt;p&gt;Yet alias has the issue of needing the whole vault path (Nixos) otherwise it becomes an infinite loop and Fish doesn't allow it. And both have the major issue of computing the values when Fish launches so very slow.</code></p>
+
+<h1 id="the-solution">The solution</h1>
+
+<p>One call, just one. It doesn’t matter how big is the item, with just one call it still takes less than a second. So I created an item called <code class="language-plaintext highlighter-rouge">tokens</code> in Bitwarden, I made it as a note, but it really doesn’t matter if you store it as a login, identity or anything else because <code class="language-plaintext highlighter-rouge">rbw</code> doesn’t care of what it is when it retrieves it with <code class="language-plaintext highlighter-rouge">rbw get tokens</code> all that matters is the custom fields I created.</p>
+
+<p>For each one of the variables I want to retrieve I created a hidden text field, with the exact name of the variable. For conveniency I used Bitwarden-desktop for this but you could easily use the CLI tool or <code class="language-plaintext highlighter-rouge">rbw</code> itself to do so. I just had to do too much copy and paste from different places so prefered the visual GUI.
+<img src="/assets/images/2025-10-image-2.png" alt="Image" />
+The elegance of this approach is that I get to name all vars directly on Bitwarden as custom-fields, no sign of them in my fish config files.</p>
+
+<p>So now to get Fish to load them type <code class="language-plaintext highlighter-rouge">funced load_bitwarden_vars</code> and add this to it
+<code>function load_bitwarden_vars set TOKENS $(rbw get tokens --raw) for pair in (printf "%s" "$TOKENS" | jq -r '.fields[] | "\(.name)=\(.value)"') set -l parts (string split -m1 = $pair) set -gx $parts[1] $parts[2] end end `&lt;/pre&gt;&lt;p&gt;Then `funcsave load_bitwarden_vars` to store it in `$HOME/.config/fish/functions/load_bitwarden_vars.fish` and then add at the end of `$HOME/.config/fish/config.fish` the function name `load_bitwarden_vars` to run it after everything else of your config has loaded. In my case being at the end was quite important as I have modifiers for `PATH` in this file.</code></p>
+
+<p>Now to test it fully lock your vault with <code class="language-plaintext highlighter-rouge">rbw lock</code> and close your terminal window. Open a newone and you should see 👇
+<img src="/assets/images/2025-10-image-3.png" alt="Image" />
+Once you log in, close the shell and open it again. This time it doesn’t ask for anything, you’ll notice a very small lag but one you can <strong>comfortably</strong> live with. In fact try to open multiple terminal windows.</p>
+
+<p>You’ve tested both cases, being logged and locked. As you see it works.</p>
+
+<p>**Problem solved! **🥳</p>
+
+<h1 id="how-it-works">How it works</h1>
+
+<p>It’s pretty simple actually, it uses the speed of <code class="language-plaintext highlighter-rouge">rbw</code> for any given item, combined with JQ to set the variables without making them universal so they don’t get written to disk.</p>
+
+<ol>
+  <li>We take the whole output as json of the item tokens from Bitwarden and assign it to the local variable TOKENS</li>
+  <li>With JQ we extract from the fields array on TOKENS each one of the pairs of name and value  custom fields we created. Format them as lines name=value</li>
+  <li>With a for loop we iterate over each one of those lines and assign them to pair</li>
+  <li>The inner content of the loop asigns each part of part to the corresponding local variables name and value.</li>
+  <li>The final line inside the loop assigns the globally exported variable. So that shell window and any subshells get the values.</li>
+</ol>
+
+<p>I’m sure it can be improved and if you come up with ideas feel free to provide me some feedback. I’m not entirely sure of the difference between the types of variables. I mean universal, local and function environment variables are pretty self-explanatory but exported and global are not that clear. The manual says exported makes them available to child processes, but how’s that different from global? Feel free to share some light to me about this in Mastodon.</p>
+
+<h1 id="useful-links">Useful links</h1>
+
+<ul>
+  <li>Fish shell scope in the Fish manual, very important to understand how set -U works.</li>
+  <li>RBW repo page in Github.</li>
+</ul>
+
+  </div>
+</article>
+
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrapper">
+        <p>&copy; 2026 Maikelology. All rights reserved.</p>
+      </div>
+    </footer>
+    
+    <script>
+      // Add anchor links to all headers
+      document.addEventListener('DOMContentLoaded', function() {
+        const headers = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
+        
+        headers.forEach(function(header) {
+          // Check if anchor link already exists
+          if (header.querySelector('a.anchor')) {
+            return;
+          }
+          
+          const id = header.getAttribute('id');
+          if (!id) return;
+          
+          const anchor = document.createElement('a');
+          anchor.href = '#' + id;
+          anchor.className = 'anchor';
+          anchor.textContent = '#';
+          anchor.setAttribute('aria-label', 'Link to this section');
+          
+          header.insertBefore(anchor, header.firstChild);
+        });
+      });
+    </script>
+  </body>
+</html>

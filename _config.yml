@@ -1,0 +1,53 @@
+url: "https://maikel.dev" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "" # the subpath of your site, e.g. /blog
+title: "Maikelology" # the name of your site, e.g. ACME Corp.
+author: "Maikel Frias Mosquea"
+description: "Ramblings of @maikel@vmst.io"
+
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-reading-time
+  - jekyll-archives
+  - jekyll-paginate-v2
+
+# Syntax highlighting is built-in with Rouge (no plugin needed)
+highlighter: rouge
+
+# Kramdown configuration for anchor links
+kramdown:
+  auto_ids: true
+  heading_offset: 0
+  syntax_highlighter: rouge
+
+# Jekyll Archives configuration
+jekyll-archives:
+  enabled:
+    - categories
+    - tags
+  layouts:
+    category: archive
+    tag: tag
+  permalinks:
+    category: /categories/:name/
+    tag: /tag/:name/
+
+# Jekyll Paginate V2 configuration
+pagination:
+  enabled: true
+  per_page: 10
+  permalink: '/page/:num/'
+  title: ':title - page :num'
+  limit: 0
+  sort_field: 'date'
+  sort_reverse: true
+  trail:
+    before: 2
+    after: 2
+
+# Feed configuration
+feed:
+  collections:
+    posts:
+      path: "/feed.xml"
